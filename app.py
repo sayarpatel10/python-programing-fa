@@ -1,155 +1,458 @@
-import streamlit as st
-import random
+"""WaterBuddy: your daily hydration companion (Streamlit, liquid-glass UI)."""
 
-# --- PAGE CONFIGURATION ---
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import streamlit as st
+
 st.set_page_config(
-    page_title="WaterBuddy | Daily Hydration Companion",
+    page_title="WaterBuddy",
     page_icon="💧",
-    layout="centered"
+    layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
-# --- CUSTOM STYLING ---
-st.markdown("""
-    <style>
-    .main {
-        background-color: #f0f8ff;
-    }
-    .stButton>button {
-        border-radius: 10px;
-        font-weight: bold;
-    }
-    .mascot-box {
-        background-color: #e0f7fa;
-        border-left: 6px solid #00acc1;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 15px 0;
-        color: #004d40;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# ───────────────────────── Constants ─────────────────────────
+TZ = ZoneInfo("Asia/Kolkata")  # change to your users' timezone
+RING_R = 90
+RING_C = 2 * 3.14159265 * RING_R
 
-# --- DATA & CONSTANTS ---
 AGE_GOALS = {
-    "6–12 years (Kids)": 1600,
-    "13–18 years (Teens)": 2200,
-    "19–50 years (Adults)": 2500,
-    "65+ years (Seniors)": 2000
+    "Children (4 to 8)": 1200,
+    "Teens (9 to 13)": 1700,
+    "Adults (14 to 64)": 2250,
+    "Seniors (65+)": 1850,
 }
+AGE_AVATAR = {
+    "Children (4 to 8)": "🧒",
+    "Teens (9 to 13)": "🧑‍🎓",
+    "Adults (14 to 64)": "🧑",
+    "Seniors (65+)": "🧓",
+}
+QUICK_POURS = (150, 250, 350, 500)
 
-HYDRATION_TIPS = [
-    "Start your morning with one full glass of water right after waking up!",
-    "Keep a reusable water bottle on your study desk as a visual reminder.",
-    "Drink a glass of water 20 minutes before every meal to help digestion.",
-    "Feeling tired or unfocused? Mild dehydration is often the hidden cause.",
-    "Add a slice of lemon, cucumber, or mint if plain water feels boring!"
-]
+# ───────────────────────── State & callbacks ─────────────────────────
+DEFAULTS = {
+    "age_group": "Adults (14 to 64)",
+    "daily_goal": AGE_GOALS["Adults (14 to 64)"],
+    "entries": [],  # list of {"ml": int, "time": "03:00 PM"}
+    "typed_amount": 0,
+    "show_reset_confirm": False,
+}
+for _k, _v in DEFAULTS.items():
+    if _k not in st.session_state:
+        st.session_state[_k] = list(_v) if isinstance(_v, list) else _v
 
-# --- SESSION STATE ---
-if "intake" not in st.session_state:
-    st.session_state.intake = 0
-if "daily_tip" not in st.session_state:
-    st.session_state.daily_tip = random.choice(HYDRATION_TIPS)
-if "selected_age" not in st.session_state:
-    st.session_state.selected_age = "13–18 years (Teens)"
-if "custom_goal" not in st.session_state:
-    st.session_state.custom_goal = AGE_GOALS[st.session_state.selected_age]
 
-# --- FUNCTIONS ---
-def update_age_goal():
-    st.session_state.custom_goal = AGE_GOALS[st.session_state.selected_age]
+def set_goal_from_age():
+    st.session_state.daily_goal = AGE_GOALS[st.session_state.age_group]
+
 
 def add_water(amount):
-    st.session_state.intake += amount
+    amount = int(amount or 0)
+    if amount > 0:
+        st.session_state.entries.append(
+            {"ml": amount, "time": datetime.now(TZ).strftime("%I:%M %p")}
+        )
 
-def reset_day():
-    st.session_state.intake = 0
-    st.session_state.daily_tip = random.choice(HYDRATION_TIPS)
 
-def get_mascot_feedback(percentage):
-    if percentage == 0:
-        return "🐢 Droplet the Turtle says:", "Ready to start your day? Take your first sip!"
-    elif percentage < 50:
-        return "🐬 Splash the Dolphin cheers:", "Great start! Keep sipping steadily through the day."
-    elif percentage < 100:
-        return "🐳 Wave the Whale says:", "Awesome! Over halfway there—keep going!"
-    else:
-        return "🏆 Hydration Champion!", "100% Goal Reached! Amazing job staying hydrated today!"
+def add_typed_water():
+    add_water(st.session_state.typed_amount)
+    st.session_state.typed_amount = 0
 
-def render_visual_bottle(percentage):
-    fill_height = min(int(percentage), 100)
-    bottle_html = f"""
-    <div style="display: flex; justify-content: center; margin: 15px 0;">
-        <div style="width: 90px; height: 180px; border: 4px solid #0288d1; border-radius: 15px 15px 25px 25px; position: relative; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            <div style="position: absolute; bottom: 0; width: 100%; height: {fill_height}%; background: linear-gradient(180deg, #4fc3f7 0%, #0288d1 100%);"></div>
-            <div style="position: absolute; width: 100%; text-align: center; top: 42%; font-weight: bold; color: #01579b; font-size: 16px;">
-                {fill_height}%
-            </div>
-        </div>
+
+def undo_last():
+    if st.session_state.entries:
+        st.session_state.entries.pop()
+
+
+def remove_entry(index):
+    if 0 <= index < len(st.session_state.entries):
+        st.session_state.entries.pop(index)
+
+
+def ask_new_day():
+    st.session_state.show_reset_confirm = True
+
+
+def cancel_new_day():
+    st.session_state.show_reset_confirm = False
+
+
+def reset_new_day():
+    st.session_state.entries = []
+    st.session_state.show_reset_confirm = False
+
+
+# ───────────────────────── Styling ─────────────────────────
+CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --ink:#25235a; --ink-soft:#5f5f93; --accent:#6c5ce7; --accent-2:#8d7ff5;
+  --sky:#a9d2ea; --lav:#d6d0f8;
+  --glass:rgba(255,255,255,.36); --glass-strong:rgba(255,255,255,.58);
+  --edge:rgba(255,255,255,.72);
+  --shadow:0 18px 44px rgba(84,72,170,.16);
+  color-scheme: light;
+}
+
+/* ── base + animated liquid backdrop ── */
+html, body, .stApp, [data-testid="stAppViewContainer"]{
+  color-scheme: light !important; color: var(--ink);
+  background: linear-gradient(155deg,#bfe0f0 0%,#d9d3f8 52%,#c2d8f2 100%) fixed !important;
+}
+.stApp, .stApp p, .stApp label, .stApp button, .stApp input, .stApp div,
+.stApp h1, .stApp h2, .stApp h3, .stApp h4{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+.stApp::before, .stApp::after{
+  content:""; position:fixed; z-index:0; pointer-events:none; border-radius:50%;
+  filter:blur(60px); opacity:.75;
+}
+.stApp::before{ width:46vmax; height:46vmax; left:-14vmax; top:-12vmax;
+  background:radial-gradient(circle,#9a8cff 0%,transparent 68%); animation:drift 22s ease-in-out infinite alternate; }
+.stApp::after{ width:42vmax; height:42vmax; right:-12vmax; bottom:-14vmax;
+  background:radial-gradient(circle,#6fc3e8 0%,transparent 68%); animation:drift 26s ease-in-out infinite alternate-reverse; }
+@keyframes drift{ to{ transform:translate(6vmax,4vmax) scale(1.08); } }
+
+[data-testid="stHeader"]{ background:transparent !important; }
+#MainMenu, footer, [data-testid="stDecoration"]{ display:none !important; }
+[data-testid="stMainBlockContainer"], .block-container{
+  position:relative; z-index:1; max-width:1120px; margin:0 auto;
+  padding:clamp(.8rem,2.5vw,2rem) clamp(.8rem,3vw,2rem) 4rem;
+}
+
+/* ── liquid glass surfaces ── */
+.wb-glass, [data-testid="stVerticalBlockBorderWrapper"]{
+  position:relative; overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,255,255,.52),rgba(255,255,255,.22)) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(170%); backdrop-filter:blur(24px) saturate(170%);
+  border:1px solid var(--edge) !important; border-radius:28px !important;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.25), var(--shadow);
+}
+.wb-glass::before, [data-testid="stVerticalBlockBorderWrapper"]::before{
+  content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  background:radial-gradient(120% 70% at 12% -10%,rgba(255,255,255,.55),transparent 55%);
+}
+[data-testid="stVerticalBlockBorderWrapper"] > div{ position:relative; }
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"]{
+  border-radius:20px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+/* ── header ── */
+.wb-hero{ display:flex; align-items:center; gap:clamp(12px,2.4vw,20px); padding:clamp(16px,3vw,26px); margin-bottom:1rem; }
+.wb-avatar{ flex:0 0 auto; width:clamp(54px,9vw,72px); aspect-ratio:1; display:grid; place-items:center;
+  font-size:clamp(28px,5vw,38px); border-radius:50%;
+  background:linear-gradient(145deg,#fff,#e4defc); box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 8px 20px rgba(108,92,231,.25); }
+.wb-hello{ color:var(--ink-soft); font-size:.9rem; font-weight:600; }
+.wb-brand{ font-size:clamp(1.5rem,4vw,2.1rem); font-weight:800; letter-spacing:-.03em; line-height:1.1; }
+.wb-tag{ color:var(--ink-soft); font-size:.92rem; margin-top:2px; }
+.wb-pills{ margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.wb-pill{ padding:9px 14px; border-radius:18px; background:var(--glass-strong); border:1px solid var(--edge);
+  text-align:center; min-width:96px; box-shadow:inset 0 1px 0 #fff; }
+.wb-pill b{ display:block; font-size:1.02rem; font-weight:800; }
+.wb-pill small{ color:var(--ink-soft); font-size:.7rem; font-weight:600; }
+
+/* ── section titles ── */
+.wb-h{ font-size:1.12rem; font-weight:800; letter-spacing:-.01em; margin:.1rem 0 .15rem; }
+.wb-sub{ color:var(--ink-soft); font-size:.88rem; margin-bottom:.7rem; }
+
+/* ── progress ring with liquid wave ── */
+.wb-ring{ position:relative; width:min(100%,300px); margin:.4rem auto .6rem; aspect-ratio:1; }
+.wb-ring svg{ width:100%; height:100%; display:block; overflow:visible; }
+.wb-track{ fill:none; stroke:rgba(255,255,255,.7); stroke-width:12; }
+.wb-arc{ fill:none; stroke:url(#wbArc); stroke-width:12; stroke-linecap:round;
+  transition:stroke-dasharray .9s cubic-bezier(.22,1,.36,1); filter:drop-shadow(0 4px 8px rgba(108,92,231,.35)); }
+.wb-lvl{ transition:transform 1s cubic-bezier(.22,1,.36,1); }
+.wb-w1{ animation:slide 7s linear infinite; }
+.wb-w2{ animation:slide 11s linear infinite reverse; }
+@keyframes slide{ to{ transform:translateX(-100px); } }
+.wb-ring-text{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; pointer-events:none; }
+.wb-big{ font-size:clamp(1.7rem,6vw,2.3rem); font-weight:800; letter-spacing:-.03em; line-height:1; }
+.wb-big small{ font-size:.5em; font-weight:700; color:var(--ink-soft); }
+.wb-of{ color:var(--ink-soft); font-size:.82rem; font-weight:600; margin-top:6px; }
+
+.wb-left{ display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border-radius:18px;
+  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }
+.wb-left b{ color:var(--accent); font-size:1.1rem; font-weight:800; }
+.wb-left span{ color:var(--ink-soft); font-size:.9rem; }
+.wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.4;
+  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }
+
+/* ── records ── */
+.wb-rec{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:18px;
+  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }
+.wb-rec-ic{ width:38px; height:38px; border-radius:13px; display:grid; place-items:center; font-size:1.1rem;
+  background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; }
+.wb-rec-t{ font-weight:700; font-size:.95rem; } .wb-rec-s{ color:var(--ink-soft); font-size:.78rem; }
+.wb-rec-ml{ margin-left:auto; font-weight:800; white-space:nowrap; }
+.wb-empty{ text-align:center; color:var(--ink-soft); padding:1.4rem .5rem; font-weight:600; }
+.wb-stat{ text-align:center; padding:12px 8px; border-radius:18px; background:var(--glass-strong);
+  border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }
+.wb-stat b{ display:block; font-size:1.2rem; font-weight:800; } .wb-stat small{ color:var(--ink-soft); font-weight:600; font-size:.74rem; }
+.wb-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+
+/* ── tabs as floating glass pill ── */
+[data-baseweb="tab-list"]{ gap:4px !important; padding:5px; width:fit-content; max-width:100%; margin:0 auto 1rem;
+  border-radius:22px; background:var(--glass); border:1px solid var(--edge);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); box-shadow:inset 0 1px 0 #fff,var(--shadow); }
+[data-baseweb="tab"]{ border-radius:17px !important; padding:9px 22px !important; height:auto !important; background:transparent !important; }
+[data-baseweb="tab"] p{ font-weight:700 !important; color:var(--ink-soft) !important; }
+[data-baseweb="tab"][aria-selected="true"]{ background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important; box-shadow:0 6px 16px rgba(108,92,231,.4); }
+[data-baseweb="tab"][aria-selected="true"] p{ color:#fff !important; }
+[data-baseweb="tab-highlight"], [data-baseweb="tab-border"]{ display:none !important; }
+[data-testid="stTabs"]{ display:block; }
+
+/* ── buttons ── */
+.stApp [data-testid^="stBaseButton"]{
+  border-radius:16px; min-height:46px; font-weight:700; color:var(--ink) !important;
+  background:var(--glass-strong) !important; border:1px solid var(--edge) !important;
+  box-shadow:inset 0 1px 0 #fff,0 6px 14px rgba(84,72,170,.1);
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.stApp [data-testid^="stBaseButton"] p{ color:inherit !important; font-weight:700; }
+.stApp [data-testid^="stBaseButton"]:hover{ transform:translateY(-2px); background:rgba(255,255,255,.85) !important; box-shadow:inset 0 1px 0 #fff,0 10px 20px rgba(84,72,170,.18); }
+.stApp [data-testid^="stBaseButton"]:active{ transform:scale(.97); }
+.stApp [data-testid="stBaseButton-primary"]{
+  color:#fff !important; border-color:rgba(255,255,255,.4) !important;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 22px rgba(108,92,231,.38);
+}
+.stApp [data-testid="stBaseButton-primary"]:hover{ background:linear-gradient(135deg,#5d4de0,#7d6ff0) !important; }
+.stApp [data-testid="stBaseButton-primary"] p{ color:#fff !important; }
+.stApp button:focus-visible, .stApp input:focus-visible{ outline:3px solid rgba(108,92,231,.55) !important; outline-offset:2px; }
+
+/* ── inputs ── */
+.stApp label, .stApp [data-testid="stWidgetLabel"] p{ color:var(--ink) !important; font-weight:700 !important; }
+[data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"]{
+  background:rgba(255,255,255,.7) !important; border-radius:16px !important; border-color:var(--edge) !important;
+}
+[data-baseweb="select"] *, [data-baseweb="input"] input{ color:var(--ink) !important; -webkit-text-fill-color:var(--ink) !important; }
+[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{ background:rgba(255,255,255,.92) !important; border-radius:16px !important; }
+[data-testid="stNumberInput"] button{ min-height:0 !important; box-shadow:none !important; }
+
+/* ── responsive: quick pours 2×2 on phones, 4×1 on wider screens ── */
+.st-key-quick [data-testid="stHorizontalBlock"]{ flex-wrap:wrap !important; gap:.6rem !important; }
+.st-key-quick [data-testid="stColumn"]{ flex:1 1 calc(50% - .6rem) !important; min-width:calc(50% - .6rem) !important; width:auto !important; }
+@media (min-width:480px){ .st-key-quick [data-testid="stColumn"]{ flex-basis:calc(25% - .6rem) !important; min-width:calc(25% - .6rem) !important; } }
+
+/* record rows keep the delete button inline on every screen */
+.st-key-records [data-testid="stHorizontalBlock"]{ flex-wrap:nowrap !important; gap:.5rem !important; align-items:center; margin-bottom:.45rem; }
+.st-key-records [data-testid="stColumn"]{ min-width:0 !important; }
+.st-key-records [data-testid="stColumn"]:first-child{ flex:1 1 auto !important; width:auto !important; }
+.st-key-records [data-testid="stColumn"]:last-child{ flex:0 0 50px !important; width:50px !important; }
+
+@media (max-width:760px){
+  .wb-hero{ flex-wrap:wrap; } .wb-pills{ margin-left:0; width:100%; justify-content:stretch; } .wb-pill{ flex:1; }
+  [data-baseweb="tab"]{ padding:8px 16px !important; }
+}
+/* landscape phones / short screens */
+@media (max-height:520px) and (orientation:landscape){
+  .wb-ring{ width:min(100%,200px); } .wb-hero{ padding:12px 16px; } .wb-tag{ display:none; }
+}
+/* tablets: keep two columns readable */
+@media (min-width:761px) and (max-width:1024px){ .wb-pill{ min-width:84px; } }
+
+@media (prefers-reduced-motion:reduce){
+  .stApp::before,.stApp::after,.wb-w1,.wb-w2{ animation:none !important; }
+  .wb-arc,.wb-lvl,.stApp [data-testid^="stBaseButton"]{ transition:none !important; }
+}
+</style>
+"""
+st.markdown(CSS, unsafe_allow_html=True)
+
+
+# ───────────────────────── Helpers ─────────────────────────
+def html(markup: str) -> None:
+    """Render HTML without Markdown turning indented lines into code blocks."""
+    st.markdown("".join(line.strip() for line in markup.splitlines()), unsafe_allow_html=True)
+
+
+def feedback(percent: float) -> str:
+    if percent >= 100:
+        return "Great job! You reached your goal today! 🎉"
+    if percent >= 75:
+        return "Almost there! You are past 75%. 🌊"
+    if percent >= 50:
+        return "Great! You reached 50%! 😊"
+    return "You’re doing well. Every glass gets you closer! 💙"
+
+
+def ring_svg(progress: float) -> str:
+    dash = RING_C * progress
+    level = 172 - 144 * progress  # inner circle spans y=28 → y=172
+    wave = (
+        "M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 "
+        "T400 10 V220 H0 Z"
+    )
+    return f"""
+    <svg viewBox="0 0 200 200" role="img" aria-label="{int(progress*100)} percent of daily goal">
+      <defs>
+        <linearGradient id="wbArc" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#6c5ce7"/><stop offset="1" stop-color="#5bb8e6"/>
+        </linearGradient>
+        <linearGradient id="wbWater" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#9d92f7" stop-opacity=".85"/>
+          <stop offset="1" stop-color="#6ec1ea" stop-opacity=".75"/>
+        </linearGradient>
+        <clipPath id="wbClip"><circle cx="100" cy="100" r="72"/></clipPath>
+      </defs>
+      <circle cx="100" cy="100" r="72" fill="rgba(255,255,255,.5)"/>
+      <g clip-path="url(#wbClip)">
+        <g class="wb-lvl" style="transform:translateY({level:.1f}px)">
+          <path class="wb-w2" d="{wave}" fill="#b8aff9" fill-opacity=".55" transform="translate(-50 -4)"/>
+          <path class="wb-w1" d="{wave}" fill="url(#wbWater)"/>
+        </g>
+      </g>
+      <circle class="wb-track" cx="100" cy="100" r="{RING_R}"/>
+      <circle class="wb-arc" cx="100" cy="100" r="{RING_R}" transform="rotate(-90 100 100)"
+              stroke-dasharray="{dash:.1f} {RING_C:.1f}"/>
+    </svg>"""
+
+
+def record_row(entry: dict) -> str:
+    return (
+        f'<div class="wb-rec"><div class="wb-rec-ic">💧</div>'
+        f'<div><div class="wb-rec-t">{entry["time"]}</div><div class="wb-rec-s">Water</div></div>'
+        f'<div class="wb-rec-ml">{entry["ml"]:,} ml</div></div>'
+    )
+
+
+# ───────────────────────── Derived values ─────────────────────────
+goal = max(1, int(st.session_state.daily_goal))
+entries = st.session_state.entries
+total = sum(e["ml"] for e in entries)
+remaining = max(0, goal - total)
+percent = total / goal * 100
+progress = min(1.0, total / goal)
+avatar = AGE_AVATAR[st.session_state.age_group]
+
+# ───────────────────────── Header ─────────────────────────
+hour = datetime.now(TZ).hour
+greeting = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
+html(
+    f"""
+    <div class="wb-glass wb-hero">
+      <div class="wb-avatar">{avatar}</div>
+      <div>
+        <div class="wb-hello">{greeting} 👋</div>
+        <div class="wb-brand">WaterBuddy</div>
+        <div class="wb-tag">A little water. A brighter day.</div>
+      </div>
+      <div class="wb-pills">
+        <div class="wb-pill"><b>{goal:,} ml</b><small>Daily goal</small></div>
+        <div class="wb-pill"><b>{len(entries)}</b><small>Drinks logged</small></div>
+      </div>
     </div>
     """
-    st.markdown(bottle_html, unsafe_allow_html=True)
+)
 
-# --- SIDEBAR ---
-with st.sidebar:
-    st.header("💡 Daily Hydration Tip")
-    st.info(st.session_state.daily_tip)
-    if st.button("New Tip 🔄"):
-        st.session_state.daily_tip = random.choice(HYDRATION_TIPS)
-        st.rerun()
+tab_home, tab_records, tab_settings = st.tabs(["💧 Home", "🕘 Records", "⚙️ Settings"])
 
-# --- MAIN INTERFACE ---
-st.title("💧 WaterBuddy")
-st.subheader("Your Friendly Daily Hydration Companion")
+# ───────────────────────── Home ─────────────────────────
+with tab_home:
+    left, right = st.columns(2, gap="large")
 
-col_age, col_goal = st.columns(2)
-with col_age:
-    st.selectbox("Select your age group:", options=list(AGE_GOALS.keys()), key="selected_age", on_change=update_age_goal)
-with col_goal:
-    goal = st.number_input("Daily Goal (ml):", min_value=500, max_value=6000, step=100, key="custom_goal")
+    with left:
+        with st.container(border=True):
+            html('<div class="wb-h">Today’s progress</div>')
+            html(
+                f"""
+                <div class="wb-ring">{ring_svg(progress)}
+                  <div class="wb-ring-text">
+                    <div class="wb-big">{total:,}<small> ml</small></div>
+                    <div class="wb-of">of {goal:,} ml · {int(round(percent))}%</div>
+                  </div>
+                </div>
+                <div class="wb-left"><b>{remaining:,} ml</b><span>left to reach your daily goal</span></div>
+                <div class="wb-msg">{feedback(percent)}</div>
+                """
+            )
 
-st.divider()
+    with right:
+        with st.container(border=True):
+            html('<div class="wb-h">Log some water</div>')
+            html('<div class="wb-sub">Choose a quick pour or enter your own amount.</div>')
+            with st.container(key="quick"):
+                for col, amount in zip(st.columns(len(QUICK_POURS)), QUICK_POURS):
+                    col.button(
+                        f"+{amount} ml",
+                        key=f"quick_{amount}",
+                        use_container_width=True,
+                        on_click=add_water,
+                        args=(amount,),
+                    )
+            entry_col, button_col = st.columns([2, 1], vertical_alignment="bottom")
+            entry_col.number_input(
+                "Or type an amount (ml)", min_value=0, max_value=3000, step=50, key="typed_amount"
+            )
+            button_col.button(
+                "Add amount", type="primary", use_container_width=True, on_click=add_typed_water
+            )
+            st.button(
+                "↩︎ Undo last",
+                key="undo_home",
+                disabled=not entries,
+                use_container_width=True,
+                on_click=undo_last,
+            )
 
-col_btn1, col_btn2, col_custom = st.columns([1, 1, 2])
-with col_btn1:
-    st.write("")
-    if st.button("➕ +250 ml", use_container_width=True, type="primary"):
-        add_water(250)
-with col_btn2:
-    st.write("")
-    if st.button("➕ +500 ml", use_container_width=True):
-        add_water(500)
-with col_custom:
-    custom_amount = st.number_input("Custom ml:", min_value=50, max_value=2000, value=150, step=50)
-    if st.button("Log Custom 💦", use_container_width=True):
-        add_water(custom_amount)
+        with st.container(border=True):
+            html('<div class="wb-h">Latest drinks</div>')
+            if entries:
+                html(
+                    "<div style='display:grid;gap:8px;margin-top:8px'>"
+                    + "".join(record_row(e) for e in reversed(entries[-3:]))
+                    + "</div>"
+                )
+            else:
+                html('<div class="wb-empty">No drinks yet. Tap a quick pour to start your day 💙</div>')
 
-st.divider()
+# ───────────────────────── Records ─────────────────────────
+with tab_records:
+    with st.container(border=True):
+        html('<div class="wb-h">Today’s records</div>')
+        largest = max((e["ml"] for e in entries), default=0)
+        average = round(total / len(entries)) if entries else 0
+        html(
+            f"""
+            <div class="wb-stats">
+              <div class="wb-stat"><b>{total:,}</b><small>Total ml</small></div>
+              <div class="wb-stat"><b>{average:,}</b><small>Average ml</small></div>
+              <div class="wb-stat"><b>{largest:,}</b><small>Largest ml</small></div>
+            </div>
+            """
+        )
+        if entries:
+            with st.container(key="records"):
+                for idx in range(len(entries) - 1, -1, -1):
+                    row, btn = st.columns([5, 1], vertical_alignment="center")
+                    with row:
+                        html(record_row(entries[idx]))
+                    btn.button("✕", key=f"del_{idx}_{entries[idx]['time']}", on_click=remove_entry, args=(idx,),
+                               help="Remove this entry")
+        else:
+            html('<div class="wb-empty">Nothing logged yet today.</div>')
 
-total_intake = st.session_state.intake
-remaining = max(goal - total_intake, 0)
-percentage = (total_intake / goal) * 100 if goal > 0 else 0
+    if st.session_state.show_reset_confirm:
+        with st.container(border=True):
+            html('<div class="wb-h">Start a new day?</div>')
+            html('<div class="wb-sub">This clears today’s drinks and sets your total back to 0 ml.</div>')
+            c1, c2 = st.columns(2)
+            c1.button("Yes, reset", type="primary", use_container_width=True, on_click=reset_new_day)
+            c2.button("Cancel", use_container_width=True, on_click=cancel_new_day)
+    else:
+        st.button("🌅 New day", on_click=ask_new_day)
 
-m1, m2, m3 = st.columns(3)
-m1.metric("Total Intake", f"{total_intake} ml")
-m2.metric("Remaining", f"{remaining} ml")
-m3.metric("Goal Achieved", f"{min(int(percentage), 100)}%")
+# ───────────────────────── Settings ─────────────────────────
+with tab_settings:
+    with st.container(border=True):
+        html('<div class="wb-h">Set your daily target</div>')
+        html('<div class="wb-sub">Choose an age group to get a suggested goal. You can adjust it anytime.</div>')
+        s1, s2 = st.columns(2, gap="medium")
+        s1.selectbox("Age group", list(AGE_GOALS), key="age_group", on_change=set_goal_from_age)
+        s2.number_input("Daily goal (ml)", min_value=250, max_value=6000, step=50, key="daily_goal")
 
-st.progress(min(percentage / 100, 1.0))
-render_visual_bottle(percentage)
-
-mascot_title, mascot_msg = get_mascot_feedback(percentage)
-st.markdown(f"""
-<div class="mascot-box">
-    <strong>{mascot_title}</strong><br>
-    {mascot_msg}
-</div>
-""", unsafe_allow_html=True)
-
-if percentage >= 100:
-    st.balloons()
-
-st.divider()
-if st.button("🔄 Reset Day", use_container_width=True):
-    reset_day()
-    st.rerun()
+st.caption("Your progress stays in this browser session and is not sent to an account.")
