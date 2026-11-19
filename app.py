@@ -230,26 +230,31 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.4;
   background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }
 
-/* ── big screen-stage blossom + 3D stars (doesn't cover whole screen) ── */
-.wb-stage{
-  position:relative;
-  margin-top:14px;
-  padding:22px 18px 20px;
-  border-radius:26px;
+/* ── floating 3D red rose pop-up on screen (not blocking whole screen) ── */
+.wb-rose-float{
+  position:fixed;
+  top:96px;
+  right:24px;
+  z-index:999;
+  width:min(350px, calc(100vw - 32px));
+  padding:18px 16px 16px;
+  border-radius:28px;
   background:
-    radial-gradient(circle at 50% 28%, rgba(255,255,255,.92), rgba(248,234,255,.68) 60%, rgba(214,238,255,.55) 100%);
-  border:1.5px solid rgba(255,255,255,.95);
-  box-shadow:0 20px 44px rgba(108,92,231,.24), inset 0 1.5px 0 #fff;
+    radial-gradient(circle at 50% 24%, rgba(255,255,255,.95), rgba(255,232,238,.84) 62%, rgba(235,228,255,.82) 100%);
+  -webkit-backdrop-filter:blur(22px) saturate(175%);
+  backdrop-filter:blur(22px) saturate(175%);
+  border:1.5px solid rgba(255,255,255,.96);
+  box-shadow:0 24px 54px rgba(128,15,47,.26), 0 8px 20px rgba(84,72,170,.18), inset 0 1.5px 0 #fff;
   overflow:hidden;
   perspective:900px;
-  animation:stagePop .72s cubic-bezier(.34,1.56,.64,1) both;
+  animation:rosePopScreen .72s cubic-bezier(.34,1.56,.64,1) both;
 }
-@keyframes stagePop{
-  0%{ opacity:0; transform:translateY(24px) scale(.86) rotateX(14deg); }
+@keyframes rosePopScreen{
+  0%{ opacity:0; transform:translateY(-24px) scale(.78) rotateX(18deg); }
   100%{ opacity:1; transform:translateY(0) scale(1) rotateX(0deg); }
 }
 
-.wb-stage-center{
+.wb-rose-center{
   position:relative;
   z-index:2;
   display:flex;
@@ -258,90 +263,83 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
   text-align:center;
 }
 
+.wb-rose-3d{
+  width:clamp(124px,28vw,156px);
+  height:clamp(124px,28vw,156px);
+  overflow:visible;
+  transform-origin:50% 58%;
+  transform-style:preserve-3d;
+  filter:drop-shadow(0 14px 22px rgba(164,16,52,.36));
+  animation:roseBloom3D .92s cubic-bezier(.34,1.56,.64,1) .06s both, roseFloat3D 3.6s ease-in-out 1s infinite alternate;
+}
+@keyframes roseBloom3D{
+  0%{ opacity:0; transform:scale(.15) rotateY(-65deg) rotateZ(-18deg); }
+  65%{ opacity:1; transform:scale(1.12) rotateY(10deg) rotateZ(4deg); }
+  100%{ opacity:1; transform:scale(1) rotateY(0deg) rotateZ(0deg); }
+}
+@keyframes roseFloat3D{
+  0%{ transform:translateY(0px) rotateY(-10deg) rotateZ(-2deg); }
+  100%{ transform:translateY(-6px) rotateY(12deg) rotateZ(3deg); }
+}
+
 .wb-congrats{
-  font-size:clamp(1.35rem,3.4vw,1.95rem);
+  font-size:clamp(1.2rem,3vw,1.6rem);
   font-weight:800;
-  letter-spacing:.06em;
+  letter-spacing:.05em;
   text-transform:uppercase;
-  background:linear-gradient(135deg,#6c5ce7 0%,#e84393 52%,#ff9f1c 100%);
+  background:linear-gradient(135deg,#c9184a 0%,#ff4d6d 52%,#7209b7 100%);
   -webkit-background-clip:text;
   background-clip:text;
   color:transparent;
   margin-top:4px;
-  animation:congratsBounce .85s cubic-bezier(.34,1.56,.64,1) .15s both;
+  animation:congratsPop .8s cubic-bezier(.34,1.56,.64,1) .14s both;
 }
-@keyframes congratsBounce{
-  0%{ opacity:0; transform:translateY(14px) scale(.75); }
+@keyframes congratsPop{
+  0%{ opacity:0; transform:translateY(10px) scale(.78); }
   100%{ opacity:1; transform:translateY(0) scale(1); }
 }
 
 .wb-milestone-pill{
-  font-size:.76rem;
+  font-size:.74rem;
   font-weight:800;
-  color:#7b2cbf;
-  background:rgba(255,255,255,.85);
-  border:1px solid rgba(232,121,168,.45);
-  padding:4px 12px;
+  color:#a4133c;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(255,77,109,.42);
+  padding:3px 11px;
   border-radius:999px;
-  margin-top:6px;
+  margin-top:5px;
 }
 
-.wb-stage-sub{
-  font-size:.88rem;
+.wb-rose-sub{
+  font-size:.84rem;
   font-weight:600;
   color:var(--ink-soft);
   margin-top:5px;
-  max-width:34ch;
+  max-width:30ch;
 }
 
-.wb-bloom-flower{
-  width:clamp(128px,26vw,176px);
-  height:clamp(128px,26vw,176px);
-  overflow:visible;
-  transform-origin:50% 62%;
-  filter:drop-shadow(0 12px 22px rgba(232,121,168,.35));
-  animation:popBlossom .9s cubic-bezier(.34,1.56,.64,1) .05s both, gentleFloat 3.4s ease-in-out 1s infinite alternate;
-}
-@keyframes popBlossom{
-  0%{ opacity:0; transform:scale(.15) rotate(-40deg); }
-  62%{ opacity:1; transform:scale(1.14) rotate(7deg); }
-  100%{ opacity:1; transform:scale(1) rotate(0deg); }
-}
-@keyframes gentleFloat{
-  0%{ transform:translateY(0px) rotate(-3deg) scale(1); }
-  100%{ transform:translateY(-6px) rotate(3deg) scale(1.04); }
-}
-
-/* ── cute 3D-style tumbling stars around the flower ── */
+/* ── cute 3D-style stars around the rose ── */
 .wb-star-3d{
   position:absolute;
   z-index:1;
   pointer-events:none;
   transform-style:preserve-3d;
-  filter:drop-shadow(0 6px 10px rgba(108,92,231,.28));
+  filter:drop-shadow(0 5px 9px rgba(108,92,231,.25));
 }
 .wb-star-3d svg{ width:100%; height:100%; display:block; }
 
-.wb-s1{ width:34px; height:34px; top:12%; left:8%;
-  animation:star3dA 3.8s ease-in-out infinite; }
-.wb-s2{ width:28px; height:28px; top:16%; right:10%;
-  animation:star3dB 4.2s ease-in-out .3s infinite; }
-.wb-s3{ width:38px; height:38px; bottom:18%; left:6%;
-  animation:star3dB 3.5s ease-in-out .6s infinite; }
-.wb-s4{ width:30px; height:30px; bottom:16%; right:8%;
-  animation:star3dA 4.0s ease-in-out .2s infinite; }
-.wb-s5{ width:24px; height:24px; top:48%; left:4%;
-  animation:star3dA 3.2s ease-in-out .8s infinite; }
-.wb-s6{ width:26px; height:26px; top:46%; right:4%;
-  animation:star3dB 3.6s ease-in-out .4s infinite; }
+.wb-s1{ width:28px; height:28px; top:10%; left:8%; animation:star3dA 3.8s ease-in-out infinite; }
+.wb-s2{ width:24px; height:24px; top:14%; right:9%; animation:star3dB 4.2s ease-in-out .3s infinite; }
+.wb-s3{ width:30px; height:30px; bottom:18%; left:7%; animation:star3dB 3.5s ease-in-out .6s infinite; }
+.wb-s4{ width:26px; height:26px; bottom:16%; right:8%; animation:star3dA 4.0s ease-in-out .2s infinite; }
 
 @keyframes star3dA{
   0%,100%{ transform:translateY(0px) rotateY(0deg) rotateZ(0deg) scale(.92); }
-  50%{ transform:translateY(-10px) rotateY(180deg) rotateZ(18deg) scale(1.14); }
+  50%{ transform:translateY(-8px) rotateY(180deg) rotateZ(18deg) scale(1.14); }
 }
 @keyframes star3dB{
   0%,100%{ transform:translateY(0px) rotateX(0deg) rotateZ(0deg) scale(1); }
-  50%{ transform:translateY(-12px) rotateX(180deg) rotateZ(-20deg) scale(1.16); }
+  50%{ transform:translateY(-10px) rotateX(180deg) rotateZ(-20deg) scale(1.15); }
 }
 
 /* ── records ── */
@@ -413,6 +411,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 @media (max-width:760px){
   .wb-hero{ flex-wrap:wrap; } .wb-pills{ margin-left:0; width:100%; justify-content:stretch; } .wb-pill{ flex:1; }
   [data-baseweb="tab"]{ padding:8px 16px !important; }
+  .wb-rose-float{ top:auto; bottom:16px; right:16px; }
 }
 @media (max-height:520px) and (orientation:landscape){
   .wb-ring{ width:min(100%,200px); } .wb-hero{ padding:12px 16px; } .wb-tag{ display:none; }
@@ -420,7 +419,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 @media (min-width:761px) and (max-width:1024px){ .wb-pill{ min-width:84px; } }
 
 @media (prefers-reduced-motion:reduce){
-  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-stage,.wb-congrats,.wb-bloom-flower,.wb-star-3d{ animation:none !important; }
+  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-rose-float,.wb-congrats,.wb-rose-3d,.wb-star-3d{ animation:none !important; }
   .wb-arc,.wb-lvl,.stApp [data-testid^="stBaseButton"]{ transition:none !important; }
 }
 </style>
@@ -450,8 +449,8 @@ def feedback(percent: float) -> str:
     return "You’re doing well. Every glass gets you closer! 💙"
 
 
-def play_pop_chime(trigger_id: int) -> None:
-    """Play a balloon-pop burst + bright blossom chime via Web Audio API."""
+def play_water_then_congrats(trigger_id: int) -> None:
+    """Play a water splash/droplet sound first, followed by 'Congratulations!'."""
     if trigger_id <= 0:
         return
     components.html(
@@ -467,59 +466,83 @@ def play_pop_chime(trigger_id: int) -> None:
 
             const now = ctx.currentTime;
 
-            // 1) Crisp balloon-pop thump + snap
-            const popOsc = ctx.createOscillator();
-            const popGain = ctx.createGain();
-            popOsc.type = "triangle";
-            popOsc.frequency.setValueAtTime(340, now);
-            popOsc.frequency.exponentialRampToValueAtTime(58, now + 0.11);
-
-            popGain.gain.setValueAtTime(0.001, now);
-            popGain.gain.linearRampToValueAtTime(0.45, now + 0.008);
-            popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-
-            popOsc.connect(popGain);
-            popGain.connect(ctx.destination);
-            popOsc.start(now);
-            popOsc.stop(now + 0.13);
-
-            // Short air burst for realistic pop transient
-            const bufferSize = Math.floor(ctx.sampleRate * 0.05);
-            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {{
-              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+            // 1) Water splash (filtered noise swell) + rising water droplets
+            const dur = 0.55;
+            const bufLen = Math.floor(ctx.sampleRate * dur);
+            const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+            const ch = buf.getChannelData(0);
+            for (let i = 0; i < bufLen; i++) {{
+              const t = i / bufLen;
+              const env = Math.sin(Math.min(1, t * 2.2) * Math.PI) * Math.exp(-t * 2.2);
+              ch[i] = (Math.random() * 2 - 1) * env;
             }}
             const noise = ctx.createBufferSource();
-            noise.buffer = noiseBuffer;
-            const filter = ctx.createBiquadFilter();
-            filter.type = "bandpass";
-            filter.frequency.setValueAtTime(1400, now);
-            filter.Q.setValueAtTime(1.8, now);
-            const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.32, now);
-            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-            noise.connect(filter);
-            filter.connect(noiseGain);
-            noiseGain.connect(ctx.destination);
+            noise.buffer = buf;
+
+            const bp = ctx.createBiquadFilter();
+            bp.type = "bandpass";
+            bp.frequency.setValueAtTime(520, now);
+            bp.frequency.exponentialRampToValueAtTime(1650, now + 0.32);
+            bp.frequency.exponentialRampToValueAtTime(750, now + dur);
+            bp.Q.setValueAtTime(2.4, now);
+
+            const nGain = ctx.createGain();
+            nGain.gain.setValueAtTime(0.001, now);
+            nGain.gain.linearRampToValueAtTime(0.35, now + 0.06);
+            nGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+            noise.connect(bp);
+            bp.connect(nGain);
+            nGain.connect(ctx.destination);
             noise.start(now);
 
-            // 2) Cheerful flower-blossom arpeggio right after the pop
-            const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-            notes.forEach((freq, idx) => {{
-              const start = now + 0.07 + idx * 0.075;
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.setValueAtTime(freq, start);
-              gain.gain.setValueAtTime(0.001, start);
-              gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
-              gain.gain.exponentialRampToValueAtTime(0.0008, start + 0.32);
-              osc.connect(gain);
-              gain.connect(ctx.destination);
-              osc.start(start);
-              osc.stop(start + 0.34);
+            // Cute water "bloop" droplets
+            [0.05, 0.17, 0.30].forEach((offset, idx) => {{
+              const dOsc = ctx.createOscillator();
+              const dGain = ctx.createGain();
+              const baseF = 360 + idx * 140;
+              dOsc.type = "sine";
+              dOsc.frequency.setValueAtTime(baseF, now + offset);
+              dOsc.frequency.exponentialRampToValueAtTime(baseF * 1.9, now + offset + 0.11);
+
+              dGain.gain.setValueAtTime(0.001, now + offset);
+              dGain.gain.linearRampToValueAtTime(0.16, now + offset + 0.015);
+              dGain.gain.exponentialRampToValueAtTime(0.0008, now + offset + 0.13);
+
+              dOsc.connect(dGain);
+              dGain.connect(ctx.destination);
+              dOsc.start(now + offset);
+              dOsc.stop(now + offset + 0.14);
             }});
+
+            // 2) After the water sound finishes (~0.62s), say "Congratulations!"
+            setTimeout(() => {{
+              try {{
+                if ("speechSynthesis" in window) {{
+                  window.speechSynthesis.cancel();
+                  const utter = new SpeechSynthesisUtterance("Congratulations!");
+                  utter.rate = 1.02;
+                  utter.pitch = 1.15;
+                  utter.volume = 1.0;
+                  window.speechSynthesis.speak(utter);
+                }} else {{
+                  const t0 = ctx.currentTime;
+                  [587.33, 783.99, 1046.5].forEach((f, i) => {{
+                    const o = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    o.type = "triangle";
+                    o.frequency.setValueAtTime(f, t0 + i * 0.08);
+                    g.gain.setValueAtTime(0.001, t0 + i * 0.08);
+                    g.gain.linearRampToValueAtTime(0.15, t0 + i * 0.08 + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.0008, t0 + i * 0.08 + 0.35);
+                    o.connect(g);
+                    g.connect(ctx.destination);
+                    o.start(t0 + i * 0.08);
+                    o.stop(t0 + i * 0.08 + 0.36);
+                  }});
+                }}
+              }} catch (err) {{}}
+            }}, 620);
           }} catch (e) {{}}
         }})();
         </script>
@@ -545,65 +568,66 @@ def _star_3d_svg(fill_top: str, fill_bottom: str) -> str:
     """
 
 
-def blossom_stage_html(milestone: int) -> str:
-    messages = {
-        25: "You hit 25% of your daily goal—your flower popped into bloom!",
-        50: "Halfway to your target at 50%—keep that fresh energy flowing!",
-        75: "75% complete—your hydration blossom is shining bright!",
-        100: "100% goal achieved—full flower power for staying hydrated!",
-    }
-    sub = messages.get(milestone, f"You crossed {milestone}% of your daily hydration target!")
+def rose_popup_html(milestone: int) -> str:
+    sub = f"You reached {milestone}% of your hydration goal today!"
     return f"""
-    <div class="wb-stage" role="status" aria-live="polite">
+    <div class="wb-rose-float" role="status" aria-live="polite">
       <div class="wb-star-3d wb-s1">{_star_3d_svg("#ffe066", "#ff9f1c")}</div>
-      <div class="wb-star-3d wb-s2">{_star_3d_svg("#ff9ebb", "#e84393")}</div>
+      <div class="wb-star-3d wb-s2">{_star_3d_svg("#ff8fab", "#c9184a")}</div>
       <div class="wb-star-3d wb-s3">{_star_3d_svg("#9bf6ff", "#4cc9f0")}</div>
       <div class="wb-star-3d wb-s4">{_star_3d_svg("#bdb2ff", "#6c5ce7")}</div>
-      <div class="wb-star-3d wb-s5">{_star_3d_svg("#ffd6a5", "#f77f00")}</div>
-      <div class="wb-star-3d wb-s6">{_star_3d_svg("#caffbf", "#2ec4b6")}</div>
 
-      <div class="wb-stage-center">
-        <svg class="wb-bloom-flower" viewBox="0 0 120 120" aria-hidden="true">
+      <div class="wb-rose-center">
+        <svg class="wb-rose-3d" viewBox="0 0 140 140" aria-hidden="true">
           <defs>
-            <radialGradient id="wbPetalMain" cx="50%" cy="30%" r="70%">
-              <stop offset="0%" stop-color="#ffe0ec"/>
-              <stop offset="55%" stop-color="#ff8fab"/>
-              <stop offset="100%" stop-color="#e84393"/>
+            <radialGradient id="roseOuter" cx="35%" cy="28%" r="72%">
+              <stop offset="0%" stop-color="#ff5c77"/>
+              <stop offset="55%" stop-color="#d90429"/>
+              <stop offset="100%" stop-color="#6a040f"/>
             </radialGradient>
-            <radialGradient id="wbFlowerCenter" cx="40%" cy="35%" r="65%">
-              <stop offset="0%" stop-color="#fff6b3"/>
-              <stop offset="100%" stop-color="#ffb703"/>
+            <radialGradient id="roseMid" cx="38%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#ff758f"/>
+              <stop offset="60%" stop-color="#c9184a"/>
+              <stop offset="100%" stop-color="#590d22"/>
             </radialGradient>
+            <linearGradient id="roseLeaf" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#52b788"/>
+              <stop offset="100%" stop-color="#1b4332"/>
+            </linearGradient>
           </defs>
-          <!-- stem & leaves -->
-          <path d="M60 72 Q58 94 60 112" stroke="#38b000" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <path d="M60 95 Q38 86 35 100 Q48 106 60 98 Z" fill="#55a630"/>
-          <path d="M60 88 Q82 79 85 93 Q72 99 60 91 Z" fill="#38b000"/>
 
-          <!-- 8 lush petals -->
-          <g fill="url(#wbPetalMain)" stroke="#ffffff" stroke-width="1.2">
-            <ellipse cx="60" cy="27" rx="12" ry="20"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(45 60 54)"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(90 60 54)"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(135 60 54)"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(180 60 54)"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(225 60 54)"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(270 60 54)"/>
-            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(315 60 54)"/>
-          </g>
+          <!-- stem & 3D leaves -->
+          <path d="M70 84 Q68 110 70 132" stroke="#2d6a4f" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+          <path d="M70 108 Q42 96 38 114 Q54 122 70 112 Z" fill="url(#roseLeaf)" stroke="#b7e4c7" stroke-width="1"/>
+          <path d="M70 100 Q98 88 102 106 Q86 114 70 104 Z" fill="url(#roseLeaf)" stroke="#b7e4c7" stroke-width="1"/>
 
-          <!-- happy blossom face -->
-          <circle cx="60" cy="54" r="17" fill="url(#wbFlowerCenter)" stroke="#fff" stroke-width="2"/>
-          <circle cx="54.5" cy="52" r="2.1" fill="#3d2c1e"/>
-          <circle cx="65.5" cy="52" r="2.1" fill="#3d2c1e"/>
-          <circle cx="51" cy="55.5" r="2.5" fill="#ff758f" opacity=".7"/>
-          <circle cx="69" cy="55.5" r="2.5" fill="#ff758f" opacity=".7"/>
-          <path d="M56 57.5 Q60 62 64 57.5" stroke="#3d2c1e" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <!-- outer 3D red rose petals -->
+          <path d="M70 88 C36 88 22 62 32 38 C40 20 56 22 70 30 C84 22 100 20 108 38 C118 62 104 88 70 88 Z"
+                fill="url(#roseOuter)" stroke="#ffccd5" stroke-width="1.2"/>
+          <path d="M33 44 C26 62 40 84 70 88 C52 76 46 58 33 44 Z"
+                fill="#800f2f" opacity=".55"/>
+          <path d="M107 44 C114 62 100 84 70 88 C88 76 94 58 107 44 Z"
+                fill="#590d22" opacity=".55"/>
+
+          <!-- middle cupped petals -->
+          <path d="M70 82 C46 82 38 60 46 42 C53 29 63 32 70 38 C77 32 87 29 94 42 C102 60 94 82 70 82 Z"
+                fill="url(#roseMid)" stroke="#ffb3c1" stroke-width="1.1"/>
+
+          <!-- inner swirl center -->
+          <path d="M70 72 C56 72 52 56 58 45 C63 37 77 37 82 45 C88 56 84 72 70 72 Z"
+                fill="#ff4d6d" stroke="#ffe5ec" stroke-width="1.1"/>
+          <path d="M62 48 C65 42 75 42 78 48 C81 55 76 64 70 64 C64 64 59 55 62 48 Z"
+                fill="#a4133c"/>
+          <path d="M65 47 C68 44 73 45 74 50 C75 55 71 59 68 57"
+                stroke="#ffb3c1" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+          <!-- glossy 3D highlight -->
+          <ellipse cx="47" cy="40" rx="6" ry="11" transform="rotate(-24 47 40)" fill="#ffffff" opacity=".32"/>
         </svg>
 
         <div class="wb-congrats">CONGRATULATIONS!</div>
-        <div class="wb-milestone-pill">🌸 {milestone}% Goal Milestone</div>
-        <div class="wb-stage-sub">{sub}</div>
+        <div class="wb-milestone-pill">🌹 {milestone}% Goal Milestone</div>
+        <div class="wb-rose-sub">{sub}</div>
       </div>
     </div>
     """
@@ -659,9 +683,12 @@ progress = min(1.0, total / goal)
 avatar = AGE_AVATAR[st.session_state.age_group]
 active_milestone = st.session_state.active_flower_milestone
 
-# Trigger pop + chime sound when a new milestone unlocks
+# Trigger water sound first, then "Congratulations!" when a new milestone unlocks
 if active_milestone is not None and st.session_state.sound_trigger_id > 0:
-    play_pop_chime(st.session_state.sound_trigger_id)
+    play_water_then_congrats(st.session_state.sound_trigger_id)
+
+if active_milestone is not None:
+    html(rose_popup_html(active_milestone))
 
 # ───────────────────────── Header ─────────────────────────
 hour = datetime.now(TZ).hour
@@ -692,7 +719,6 @@ with tab_home:
     with left:
         with st.container(border=True):
             html('<div class="wb-h">Today’s progress</div>')
-            stage_html = blossom_stage_html(active_milestone) if active_milestone is not None else ""
             html(
                 f"""
                 <div class="wb-ring">{ring_svg(progress)}
@@ -704,12 +730,11 @@ with tab_home:
                 </div>
                 <div class="wb-left"><b>{remaining:,} ml ({fmt_liters(remaining)})</b><span>left to reach your daily goal</span></div>
                 <div class="wb-msg">{feedback(percent)}</div>
-                {stage_html}
                 """
             )
             if active_milestone is not None:
                 st.button(
-                    "✨ Hide celebration",
+                    "🌹 Hide rose pop-up",
                     key="hide_flower_btn",
                     use_container_width=True,
                     on_click=dismiss_flower,
