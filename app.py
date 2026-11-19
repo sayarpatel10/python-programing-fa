@@ -199,7 +199,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .wb-tag{ color:var(--ink-soft); font-size:.92rem; margin-top:2px; }
 .wb-pills{ margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .wb-pill{ padding:9px 14px; border-radius:18px; background:var(--glass-strong); border:1px solid var(--edge);
-  text-align:center; min-width:110px; box-shadow:inset 0 1px 0 #fff; }
+  text-align:center; min-width:106px; box-shadow:inset 0 1px 0 #fff; }
 .wb-pill b{ display:block; font-size:1.02rem; font-weight:800; }
 .wb-pill small{ color:var(--ink-soft); font-size:.7rem; font-weight:600; }
 
@@ -227,119 +227,86 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
   background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; text-align:center; }
 .wb-left b{ color:var(--accent); font-size:1.05rem; font-weight:800; }
 .wb-left span{ color:var(--ink-soft); font-size:.88rem; }
+.wb-meta-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.wb-chip{ font-size:.78rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.62);
+  border:1px solid var(--edge); padding:6px 12px; border-radius:999px; }
 .wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.4;
   background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }
 
-/* ── floating 3D red rose pop-up on screen (not blocking whole screen) ── */
-.wb-rose-float{
+/* ── boxless single big 3D red rose in center (no text, fades smoothly after 5s) ── */
+.wb-rose-only-wrap{
   position:fixed;
-  top:96px;
-  right:24px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
   z-index:999;
-  width:min(350px, calc(100vw - 32px));
-  padding:18px 16px 16px;
-  border-radius:28px;
-  background:
-    radial-gradient(circle at 50% 24%, rgba(255,255,255,.95), rgba(255,232,238,.84) 62%, rgba(235,228,255,.82) 100%);
-  -webkit-backdrop-filter:blur(22px) saturate(175%);
-  backdrop-filter:blur(22px) saturate(175%);
-  border:1.5px solid rgba(255,255,255,.96);
-  box-shadow:0 24px 54px rgba(128,15,47,.26), 0 8px 20px rgba(84,72,170,.18), inset 0 1.5px 0 #fff;
-  overflow:hidden;
-  perspective:900px;
-  animation:rosePopScreen .72s cubic-bezier(.34,1.56,.64,1) both;
+  pointer-events:none;
+  display:grid;
+  place-items:center;
+  perspective:1100px;
+  animation:roseLifetime5s 5.6s cubic-bezier(.22,1,.36,1) forwards;
 }
-@keyframes rosePopScreen{
-  0%{ opacity:0; transform:translateY(-24px) scale(.78) rotateX(18deg); }
-  100%{ opacity:1; transform:translateY(0) scale(1) rotateX(0deg); }
-}
-
-.wb-rose-center{
-  position:relative;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
+@keyframes roseLifetime5s{
+  0%{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+  84%{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+  100%{ opacity:0; transform:translate(-50%, -56%) scale(.86); visibility:hidden; }
 }
 
 .wb-rose-3d{
-  width:clamp(124px,28vw,156px);
-  height:clamp(124px,28vw,156px);
+  width:clamp(190px,36vw,268px);
+  height:clamp(190px,36vw,268px);
   overflow:visible;
   transform-origin:50% 58%;
   transform-style:preserve-3d;
-  filter:drop-shadow(0 14px 22px rgba(164,16,52,.36));
-  animation:roseBloom3D .92s cubic-bezier(.34,1.56,.64,1) .06s both, roseFloat3D 3.6s ease-in-out 1s infinite alternate;
+  filter:drop-shadow(0 22px 38px rgba(159,18,57,.42));
+  animation:
+    roseUltraSmoothBloom 1.35s cubic-bezier(.16,1,.3,1) both,
+    roseUltraSmoothBreathe 4.2s ease-in-out 1.35s infinite alternate;
 }
-@keyframes roseBloom3D{
-  0%{ opacity:0; transform:scale(.15) rotateY(-65deg) rotateZ(-18deg); }
-  65%{ opacity:1; transform:scale(1.12) rotateY(10deg) rotateZ(4deg); }
+@keyframes roseUltraSmoothBloom{
+  0%{ opacity:0; transform:scale(.12) rotateY(-48deg) rotateZ(-14deg); }
+  65%{ opacity:1; transform:scale(1.07) rotateY(6deg) rotateZ(2deg); }
   100%{ opacity:1; transform:scale(1) rotateY(0deg) rotateZ(0deg); }
 }
-@keyframes roseFloat3D{
-  0%{ transform:translateY(0px) rotateY(-10deg) rotateZ(-2deg); }
-  100%{ transform:translateY(-6px) rotateY(12deg) rotateZ(3deg); }
+@keyframes roseUltraSmoothBreathe{
+  0%{ transform:translateY(0px) rotateY(-8deg) rotateZ(-1.5deg) scale(1); }
+  100%{ transform:translateY(-10px) rotateY(9deg) rotateZ(2deg) scale(1.03); }
 }
 
-.wb-congrats{
-  font-size:clamp(1.2rem,3vw,1.6rem);
-  font-weight:800;
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  background:linear-gradient(135deg,#c9184a 0%,#ff4d6d 52%,#7209b7 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  margin-top:4px;
-  animation:congratsPop .8s cubic-bezier(.34,1.56,.64,1) .14s both;
-}
-@keyframes congratsPop{
-  0%{ opacity:0; transform:translateY(10px) scale(.78); }
-  100%{ opacity:1; transform:translateY(0) scale(1); }
-}
-
-.wb-milestone-pill{
-  font-size:.74rem;
-  font-weight:800;
-  color:#a4133c;
-  background:rgba(255,255,255,.88);
-  border:1px solid rgba(255,77,109,.42);
-  padding:3px 11px;
-  border-radius:999px;
-  margin-top:5px;
-}
-
-.wb-rose-sub{
-  font-size:.84rem;
-  font-weight:600;
-  color:var(--ink-soft);
-  margin-top:5px;
-  max-width:30ch;
-}
-
-/* ── cute 3D-style stars around the rose ── */
-.wb-star-3d{
-  position:absolute;
-  z-index:1;
+/* ── slightly bigger multi-colored stars falling smoothly across screen ── */
+.wb-fall-star{
+  position:fixed;
+  top:-64px;
+  z-index:998;
   pointer-events:none;
-  transform-style:preserve-3d;
-  filter:drop-shadow(0 5px 9px rgba(108,92,231,.25));
+  filter:drop-shadow(0 6px 12px rgba(84,72,170,.22));
 }
-.wb-star-3d svg{ width:100%; height:100%; display:block; }
+.wb-fall-star svg{ width:100%; height:100%; display:block; }
 
-.wb-s1{ width:28px; height:28px; top:10%; left:8%; animation:star3dA 3.8s ease-in-out infinite; }
-.wb-s2{ width:24px; height:24px; top:14%; right:9%; animation:star3dB 4.2s ease-in-out .3s infinite; }
-.wb-s3{ width:30px; height:30px; bottom:18%; left:7%; animation:star3dB 3.5s ease-in-out .6s infinite; }
-.wb-s4{ width:26px; height:26px; bottom:16%; right:8%; animation:star3dA 4.0s ease-in-out .2s infinite; }
+.wb-f1{ left:8%;  width:42px; height:42px; animation:fallSmoothA 4.8s cubic-bezier(.25,.8,.25,1) 0.05s forwards; }
+.wb-f2{ left:21%; width:38px; height:38px; animation:fallSmoothB 5.1s cubic-bezier(.25,.8,.25,1) 0.28s forwards; }
+.wb-f3{ left:34%; width:46px; height:46px; animation:fallSmoothA 4.9s cubic-bezier(.25,.8,.25,1) 0.14s forwards; }
+.wb-f4{ left:48%; width:40px; height:40px; animation:fallSmoothB 5.2s cubic-bezier(.25,.8,.25,1) 0.42s forwards; }
+.wb-f5{ left:62%; width:44px; height:44px; animation:fallSmoothA 4.7s cubic-bezier(.25,.8,.25,1) 0.20s forwards; }
+.wb-f6{ left:75%; width:39px; height:39px; animation:fallSmoothB 5.0s cubic-bezier(.25,.8,.25,1) 0.36s forwards; }
+.wb-f7{ left:87%; width:45px; height:45px; animation:fallSmoothA 4.85s cubic-bezier(.25,.8,.25,1) 0.10s forwards; }
+.wb-f8{ left:14%; width:41px; height:41px; animation:fallSmoothB 5.3s cubic-bezier(.25,.8,.25,1) 0.55s forwards; }
+.wb-f9{ left:54%; width:37px; height:37px; animation:fallSmoothA 4.95s cubic-bezier(.25,.8,.25,1) 0.65s forwards; }
+.wb-f10{ left:81%; width:43px; height:43px; animation:fallSmoothB 5.15s cubic-bezier(.25,.8,.25,1) 0.48s forwards; }
 
-@keyframes star3dA{
-  0%,100%{ transform:translateY(0px) rotateY(0deg) rotateZ(0deg) scale(.92); }
-  50%{ transform:translateY(-8px) rotateY(180deg) rotateZ(18deg) scale(1.14); }
+@keyframes fallSmoothA{
+  0%{ opacity:0; transform:translate3d(0, -20px, 0) rotate(0deg) scale(.75); }
+  12%{ opacity:1; }
+  50%{ transform:translate3d(26px, 48vh, 0) rotate(170deg) scale(1.06); }
+  85%{ opacity:.92; }
+  100%{ opacity:0; transform:translate3d(-14px, 102vh, 0) rotate(340deg) scale(.9); visibility:hidden; }
 }
-@keyframes star3dB{
-  0%,100%{ transform:translateY(0px) rotateX(0deg) rotateZ(0deg) scale(1); }
-  50%{ transform:translateY(-10px) rotateX(180deg) rotateZ(-20deg) scale(1.15); }
+@keyframes fallSmoothB{
+  0%{ opacity:0; transform:translate3d(0, -20px, 0) rotate(0deg) scale(.78); }
+  12%{ opacity:1; }
+  50%{ transform:translate3d(-28px, 50vh, 0) rotate(-185deg) scale(1.08); }
+  85%{ opacity:.92; }
+  100%{ opacity:0; transform:translate3d(18px, 102vh, 0) rotate(-360deg) scale(.9); visibility:hidden; }
 }
 
 /* ── records ── */
@@ -411,7 +378,6 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 @media (max-width:760px){
   .wb-hero{ flex-wrap:wrap; } .wb-pills{ margin-left:0; width:100%; justify-content:stretch; } .wb-pill{ flex:1; }
   [data-baseweb="tab"]{ padding:8px 16px !important; }
-  .wb-rose-float{ top:auto; bottom:16px; right:16px; }
 }
 @media (max-height:520px) and (orientation:landscape){
   .wb-ring{ width:min(100%,200px); } .wb-hero{ padding:12px 16px; } .wb-tag{ display:none; }
@@ -419,7 +385,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 @media (min-width:761px) and (max-width:1024px){ .wb-pill{ min-width:84px; } }
 
 @media (prefers-reduced-motion:reduce){
-  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-rose-float,.wb-congrats,.wb-rose-3d,.wb-star-3d{ animation:none !important; }
+  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{ animation:none !important; }
   .wb-arc,.wb-lvl,.stApp [data-testid^="stBaseButton"]{ transition:none !important; }
 }
 </style>
@@ -552,83 +518,87 @@ def play_water_then_congrats(trigger_id: int) -> None:
     )
 
 
-def _star_3d_svg(fill_top: str, fill_bottom: str) -> str:
+def _star_svg(gid: str, fill_top: str, fill_bottom: str) -> str:
     return f"""
     <svg viewBox="0 0 48 48" aria-hidden="true">
       <defs>
-        <linearGradient id="st_{fill_top.strip('#')}" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="{gid}" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="{fill_top}"/>
           <stop offset="100%" stop-color="{fill_bottom}"/>
         </linearGradient>
       </defs>
       <polygon points="24,3 29.8,16.4 44.3,17.8 33.3,27.3 36.6,41.6 24,34 11.4,41.6 14.7,27.3 3.7,17.8 18.2,16.4"
-               fill="url(#st_{fill_top.strip('#')})" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-      <polygon points="24,3 29.8,16.4 24,20.5" fill="#ffffff" opacity=".45"/>
+               fill="url(#{gid})" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+      <polygon points="24,3 29.8,16.4 24,20.5" fill="#ffffff" opacity=".48"/>
     </svg>
     """
 
 
-def rose_popup_html(milestone: int) -> str:
-    sub = f"You reached {milestone}% of your hydration goal today!"
+def single_rose_and_falling_stars_html() -> str:
     return f"""
-    <div class="wb-rose-float" role="status" aria-live="polite">
-      <div class="wb-star-3d wb-s1">{_star_3d_svg("#ffe066", "#ff9f1c")}</div>
-      <div class="wb-star-3d wb-s2">{_star_3d_svg("#ff8fab", "#c9184a")}</div>
-      <div class="wb-star-3d wb-s3">{_star_3d_svg("#9bf6ff", "#4cc9f0")}</div>
-      <div class="wb-star-3d wb-s4">{_star_3d_svg("#bdb2ff", "#6c5ce7")}</div>
+    <div class="wb-fall-star wb-f1">{_star_svg("fs1", "#ffe066", "#fb8500")}</div>
+    <div class="wb-fall-star wb-f2">{_star_svg("fs2", "#ff8fab", "#e63946")}</div>
+    <div class="wb-fall-star wb-f3">{_star_svg("fs3", "#90e0ef", "#0077b6")}</div>
+    <div class="wb-fall-star wb-f4">{_star_svg("fs4", "#c77dff", "#7209b7")}</div>
+    <div class="wb-fall-star wb-f5">{_star_svg("fs5", "#80ed99", "#2b9348")}</div>
+    <div class="wb-fall-star wb-f6">{_star_svg("fs6", "#ffd166", "#ef476f")}</div>
+    <div class="wb-fall-star wb-f7">{_star_svg("fs7", "#a8dadc", "#457b9d")}</div>
+    <div class="wb-fall-star wb-f8">{_star_svg("fs8", "#f4a261", "#e76f51")}</div>
+    <div class="wb-fall-star wb-f9">{_star_svg("fs9", "#b8f2e6", "#0096c7")}</div>
+    <div class="wb-fall-star wb-f10">{_star_svg("fs10", "#ffcad4", "#d90429")}</div>
 
-      <div class="wb-rose-center">
-        <svg class="wb-rose-3d" viewBox="0 0 140 140" aria-hidden="true">
-          <defs>
-            <radialGradient id="roseOuter" cx="35%" cy="28%" r="72%">
-              <stop offset="0%" stop-color="#ff5c77"/>
-              <stop offset="55%" stop-color="#d90429"/>
-              <stop offset="100%" stop-color="#6a040f"/>
-            </radialGradient>
-            <radialGradient id="roseMid" cx="38%" cy="30%" r="70%">
-              <stop offset="0%" stop-color="#ff758f"/>
-              <stop offset="60%" stop-color="#c9184a"/>
-              <stop offset="100%" stop-color="#590d22"/>
-            </radialGradient>
-            <linearGradient id="roseLeaf" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#52b788"/>
-              <stop offset="100%" stop-color="#1b4332"/>
-            </linearGradient>
-          </defs>
+    <div class="wb-rose-only-wrap" role="status" aria-live="polite">
+      <svg class="wb-rose-3d" viewBox="0 0 150 150" aria-hidden="true">
+        <defs>
+          <radialGradient id="roseDeep" cx="35%" cy="25%" r="75%">
+            <stop offset="0%" stop-color="#ff6b8b"/>
+            <stop offset="48%" stop-color="#e11d48"/>
+            <stop offset="100%" stop-color="#6b0f1a"/>
+          </radialGradient>
+          <radialGradient id="roseVelvet" cx="42%" cy="28%" r="70%">
+            <stop offset="0%" stop-color="#ff8fa3"/>
+            <stop offset="58%" stop-color="#c9184a"/>
+            <stop offset="100%" stop-color="#4a0414"/>
+          </radialGradient>
+          <linearGradient id="roseStemGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2d6a4f"/>
+            <stop offset="50%" stop-color="#52b788"/>
+            <stop offset="100%" stop-color="#1b4332"/>
+          </linearGradient>
+          <linearGradient id="roseLeafGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#74c69d"/>
+            <stop offset="55%" stop-color="#40916c"/>
+            <stop offset="100%" stop-color="#1b4332"/>
+          </linearGradient>
+        </defs>
 
-          <!-- stem & 3D leaves -->
-          <path d="M70 84 Q68 110 70 132" stroke="#2d6a4f" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-          <path d="M70 108 Q42 96 38 114 Q54 122 70 112 Z" fill="url(#roseLeaf)" stroke="#b7e4c7" stroke-width="1"/>
-          <path d="M70 100 Q98 88 102 106 Q86 114 70 104 Z" fill="url(#roseLeaf)" stroke="#b7e4c7" stroke-width="1"/>
+        <!-- stem & lush 3D leaves -->
+        <path d="M75 90 Q72 118 75 142" stroke="url(#roseStemGrad)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <path d="M75 116 C52 102 36 108 40 124 C52 132 66 125 75 118 Z" fill="url(#roseLeafGrad)" stroke="#d8f3dc" stroke-width="1.1"/>
+        <path d="M75 108 C98 94 114 100 110 116 C98 124 84 117 75 110 Z" fill="url(#roseLeafGrad)" stroke="#d8f3dc" stroke-width="1.1"/>
 
-          <!-- outer 3D red rose petals -->
-          <path d="M70 88 C36 88 22 62 32 38 C40 20 56 22 70 30 C84 22 100 20 108 38 C118 62 104 88 70 88 Z"
-                fill="url(#roseOuter)" stroke="#ffccd5" stroke-width="1.2"/>
-          <path d="M33 44 C26 62 40 84 70 88 C52 76 46 58 33 44 Z"
-                fill="#800f2f" opacity=".55"/>
-          <path d="M107 44 C114 62 100 84 70 88 C88 76 94 58 107 44 Z"
-                fill="#590d22" opacity=".55"/>
+        <!-- back & side 3D petals -->
+        <path d="M75 94 C38 94 20 66 30 38 C38 18 58 20 75 30 C92 20 112 18 120 38 C130 66 112 94 75 94 Z"
+              fill="url(#roseDeep)" stroke="#ffccd5" stroke-width="1.3"/>
+        <path d="M31 44 C24 66 42 90 75 94 C54 80 46 60 31 44 Z" fill="#590d22" opacity=".55"/>
+        <path d="M119 44 C126 66 108 90 75 94 C96 80 104 60 119 44 Z" fill="#4a0414" opacity=".6"/>
 
-          <!-- middle cupped petals -->
-          <path d="M70 82 C46 82 38 60 46 42 C53 29 63 32 70 38 C77 32 87 29 94 42 C102 60 94 82 70 82 Z"
-                fill="url(#roseMid)" stroke="#ffb3c1" stroke-width="1.1"/>
+        <!-- sculpted mid petals -->
+        <path d="M75 88 C48 88 38 64 47 43 C54 28 66 32 75 39 C84 32 96 28 103 43 C112 64 102 88 75 88 Z"
+              fill="url(#roseVelvet)" stroke="#ffb3c1" stroke-width="1.2"/>
 
-          <!-- inner swirl center -->
-          <path d="M70 72 C56 72 52 56 58 45 C63 37 77 37 82 45 C88 56 84 72 70 72 Z"
-                fill="#ff4d6d" stroke="#ffe5ec" stroke-width="1.1"/>
-          <path d="M62 48 C65 42 75 42 78 48 C81 55 76 64 70 64 C64 64 59 55 62 48 Z"
-                fill="#a4133c"/>
-          <path d="M65 47 C68 44 73 45 74 50 C75 55 71 59 68 57"
-                stroke="#ffb3c1" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <!-- inner rosebud swirl -->
+        <path d="M75 78 C58 78 53 58 60 45 C66 35 84 35 90 45 C97 58 92 78 75 78 Z"
+              fill="#ff4d6d" stroke="#ffe5ec" stroke-width="1.2"/>
+        <path d="M64 49 C68 42 82 42 86 49 C89 58 83 68 75 68 C67 68 61 58 64 49 Z"
+              fill="#9d0208"/>
+        <path d="M67 48 C70 44 79 45 81 51 C82 57 77 62 73 60"
+              stroke="#ffb3c1" stroke-width="2" stroke-linecap="round" fill="none"/>
 
-          <!-- glossy 3D highlight -->
-          <ellipse cx="47" cy="40" rx="6" ry="11" transform="rotate(-24 47 40)" fill="#ffffff" opacity=".32"/>
-        </svg>
-
-        <div class="wb-congrats">CONGRATULATIONS!</div>
-        <div class="wb-milestone-pill">🌹 {milestone}% Goal Milestone</div>
-        <div class="wb-rose-sub">{sub}</div>
-      </div>
+        <!-- soft dew / 3D light highlights -->
+        <ellipse cx="48" cy="40" rx="6.5" ry="12" transform="rotate(-24 48 40)" fill="#ffffff" opacity=".36"/>
+        <circle cx="96" cy="46" r="3" fill="#ffffff" opacity=".45"/>
+      </svg>
     </div>
     """
 
@@ -682,13 +652,15 @@ percent = total / goal * 100
 progress = min(1.0, total / goal)
 avatar = AGE_AVATAR[st.session_state.age_group]
 active_milestone = st.session_state.active_flower_milestone
+glasses_250 = total / 250
+glasses_label = f"{glasses_250:.1f}".rstrip("0").rstrip(".")
 
 # Trigger water sound first, then "Congratulations!" when a new milestone unlocks
 if active_milestone is not None and st.session_state.sound_trigger_id > 0:
     play_water_then_congrats(st.session_state.sound_trigger_id)
 
 if active_milestone is not None:
-    html(rose_popup_html(active_milestone))
+    html(single_rose_and_falling_stars_html())
 
 # ───────────────────────── Header ─────────────────────────
 hour = datetime.now(TZ).hour
@@ -705,6 +677,7 @@ html(
       <div class="wb-pills">
         <div class="wb-pill"><b>{goal:,} ml · {fmt_liters(goal)}</b><small>Daily goal</small></div>
         <div class="wb-pill"><b>{len(entries)}</b><small>Drinks logged</small></div>
+        <div class="wb-pill"><b>{glasses_label} 🥤</b><small>250 ml glasses</small></div>
       </div>
     </div>
     """
@@ -729,12 +702,16 @@ with tab_home:
                   </div>
                 </div>
                 <div class="wb-left"><b>{remaining:,} ml ({fmt_liters(remaining)})</b><span>left to reach your daily goal</span></div>
+                <div class="wb-meta-row">
+                  <span class="wb-chip">🥤 {glasses_label} glasses today</span>
+                  <span class="wb-chip">🌸 Milestones: 25% · 50% · 75% · 100%</span>
+                </div>
                 <div class="wb-msg">{feedback(percent)}</div>
                 """
             )
             if active_milestone is not None:
                 st.button(
-                    "🌹 Hide rose pop-up",
+                    "🌹 Hide rose",
                     key="hide_flower_btn",
                     use_container_width=True,
                     on_click=dismiss_flower,
@@ -743,7 +720,7 @@ with tab_home:
     with right:
         with st.container(border=True):
             html('<div class="wb-h">Log some water</div>')
-            html('<div class="wb-sub">Choose a quick pour or enter your own amount.</div>')
+            html('<div class="wb-sub">Quick sip, glass, bottle, or big chug — every drop counts.</div>')
             with st.container(key="quick"):
                 for col, amount in zip(st.columns(len(QUICK_POURS)), QUICK_POURS):
                     col.button(
