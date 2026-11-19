@@ -323,7 +323,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   border-radius:20px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
 }}
 
-/* ── header ── */
+/* ── header + 3D droplet brand mark ── */
 .wb-hero{{ display:flex; align-items:center; gap:clamp(14px,2.5vw,24px); padding:clamp(18px,3vw,28px); margin-bottom:1.15rem; }}
 .wb-avatar{{ flex:0 0 auto; width:clamp(58px,9vw,76px); aspect-ratio:1; display:grid; place-items:center;
   font-size:clamp(28px,5vw,38px); border-radius:50%;
@@ -331,10 +331,21 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   border:1.5px solid rgba(255,255,255,.95);
   box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 10px 22px rgba(108,92,231,.24); }}
 .wb-hello{{ color:var(--ink-soft); font-size:.86rem; font-weight:700; letter-spacing:.02em; }}
+.wb-brand-row{{ display:flex; align-items:center; gap:10px; margin-top:2px; }}
+.wb-logo-drop{{
+  width:34px; height:38px; flex:0 0 auto;
+  filter:drop-shadow(0 6px 12px rgba(108,92,231,.32));
+  animation:logoSheenPulse 3.6s ease-in-out infinite;
+}}
+@keyframes logoSheenPulse{{
+  0%, 100%{{ transform:translateY(0px) scale(1); }}
+  50%{{ transform:translateY(-2px) scale(1.05); }}
+}}
 .wb-brand{{
   font-family:'Fraunces',Georgia,serif !important;
   font-size:clamp(1.75rem,4.4vw,2.45rem); font-weight:800; letter-spacing:-.025em; line-height:1.08;
-  color:var(--ink); margin-top:2px;
+  background:linear-gradient(135deg, var(--ink) 0%, var(--accent) 85%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
 }}
 .wb-tag{{ color:var(--ink-soft); font-size:.92rem; margin-top:5px; font-weight:600; letter-spacing:.005em; }}
 .wb-pills{{ margin-left:auto; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }}
@@ -583,14 +594,33 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .stApp [data-testid="stBaseButton-primary"] p{{ color:#fff !important; }}
 .stApp button:focus-visible, .stApp input:focus-visible{{ outline:3px solid rgba(108,92,231,.55) !important; outline-offset:2px; }}
 
-/* ── inputs & pills ── */
+/* ── frosted segmented control & number input contrast ── */
 .stApp label, .stApp [data-testid="stWidgetLabel"] p{{ color:var(--ink) !important; font-weight:700 !important; }}
-[data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"]{{
-  background:rgba(255,255,255,.8) !important; border-radius:16px !important; border-color:rgba(255,255,255,.95) !important;
+[data-testid="stSegmentedControl"] > div, [data-testid="stSegmentedControl"] [role="radiogroup"]{{
+  background:rgba(255,255,255,.72) !important; border:1px solid rgba(255,255,255,.95) !important;
+  border-radius:16px !important; padding:4px !important; box-shadow:inset 0 1px 0 #fff;
 }}
-[data-baseweb="select"] *, [data-baseweb="input"] input{{ color:var(--ink) !important; -webkit-text-fill-color:var(--ink) !important; }}
+[data-testid="stSegmentedControl"] button{{
+  background:transparent !important; color:var(--ink) !important; border-radius:12px !important;
+  border:none !important; box-shadow:none !important; min-height:38px !important;
+}}
+[data-testid="stSegmentedControl"] button[aria-checked="true"]{{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important;
+  color:#fff !important; box-shadow:0 4px 12px rgba(108,92,231,.32) !important;
+}}
+[data-testid="stSegmentedControl"] button[aria-checked="true"] p{{ color:#fff !important; }}
+[data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"]{{
+  background:rgba(255,255,255,.84) !important; border-radius:16px !important;
+  border-color:rgba(255,255,255,.95) !important; box-shadow:inset 0 1px 0 #fff;
+}}
+[data-baseweb="select"] *, [data-baseweb="input"] input{{
+  color:var(--ink) !important; background:transparent !important; -webkit-text-fill-color:var(--ink) !important;
+}}
 [data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{{ background:rgba(255,255,255,.96) !important; border-radius:16px !important; }}
-[data-testid="stNumberInput"] button{{ min-height:0 !important; box-shadow:none !important; }}
+[data-testid="stNumberInput"] button{{
+  min-height:0 !important; background:rgba(255,255,255,.72) !important;
+  color:var(--ink) !important; box-shadow:none !important; border:none !important;
+}}
 
 /* ── responsive: quick pours 2×2 on phones, 4×1 on wider screens ── */
 .st-key-quick [data-testid="stHorizontalBlock"]{{ flex-wrap:wrap !important; gap:.65rem !important; }}
@@ -614,7 +644,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 @media (min-width:761px) and (max-width:1024px){{ .wb-pill{{ min-width:96px; }} }}
 
 @media (prefers-reduced-motion:reduce){{
-  .stApp::before,.stApp::after,.wb-orb,.wb-w1,.wb-w2,.wb-drop-a,.wb-drop-b,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
+  .stApp::before,.stApp::after,.wb-orb,.wb-w1,.wb-w2,.wb-drop-a,.wb-drop-b,.wb-logo-drop,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
   .wb-arc,.wb-lvl,.wb-pace-fill,.stApp [data-testid^="stBaseButton"]{{ transition:none !important; }}
 }}
 </style>
@@ -664,6 +694,24 @@ def pace_metrics(now_dt: datetime, current_pct: float) -> tuple[str, int]:
     if current_pct + 8 >= expected_pct:
         return "🌿 On pace", expected_pct
     return "💧 Gentle catch-up", expected_pct
+
+
+def brand_logo_svg() -> str:
+    return f"""
+    <svg class="wb-logo-drop" viewBox="0 0 36 42" aria-hidden="true">
+      <defs>
+        <linearGradient id="wbLogoGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#8be9fd"/>
+          <stop offset="52%" stop-color="#56b4e9"/>
+          <stop offset="100%" stop-color="{T['accent']}"/>
+        </linearGradient>
+      </defs>
+      <path d="M18 3 C27 14.5 33 20.5 33 27.5 C33 35.2 26.3 40 18 40 C9.7 40 3 35.2 3 27.5 C3 20.5 9 14.5 18 3 Z"
+            fill="url(#wbLogoGrad)" stroke="#ffffff" stroke-width="1.6"/>
+      <ellipse cx="12.2" cy="22" rx="3.4" ry="7" transform="rotate(-20 12.2 22)" fill="#ffffff" opacity=".62"/>
+      <circle cx="23.5" cy="31" r="2.1" fill="#ffffff" opacity=".42"/>
+    </svg>
+    """
 
 
 def audio_and_fx_engine(
@@ -1034,7 +1082,7 @@ html(
       <div class="wb-avatar">{avatar}</div>
       <div>
         <div class="wb-hello">{greeting} 👋 · {T['name']}{rain_badge}</div>
-        <div class="wb-brand">WaterBuddy</div>
+        <div class="wb-brand-row">{brand_logo_svg()}<div class="wb-brand">WaterBuddy</div></div>
         <div class="wb-tag">A little water. A brighter day.</div>
       </div>
       <div class="wb-pills">
