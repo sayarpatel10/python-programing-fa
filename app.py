@@ -4,6 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="WaterBuddy",
@@ -41,6 +42,8 @@ DEFAULTS = {
     "show_reset_confirm": False,
     "celebrated_milestones": [],
     "active_flower_milestone": None,
+    "sound_trigger_id": 0,
+    "dismissed_milestone": None,
 }
 for _k, _v in DEFAULTS.items():
     if _k not in st.session_state:
@@ -49,6 +52,7 @@ for _k, _v in DEFAULTS.items():
 
 def set_goal_from_age():
     st.session_state.daily_goal = AGE_GOALS[st.session_state.age_group]
+    _sync_milestones()
 
 
 def _sync_milestones():
@@ -56,10 +60,14 @@ def _sync_milestones():
     total_val = sum(e["ml"] for e in st.session_state.entries)
     pct = (total_val / goal_val) * 100
 
-    # Keep only milestones still achieved (handles undo/delete cleanly)
     st.session_state.celebrated_milestones = [
         m for m in st.session_state.celebrated_milestones if pct >= m
     ]
+    if (
+        st.session_state.dismissed_milestone is not None
+        and pct < st.session_state.dismissed_milestone
+    ):
+        st.session_state.dismissed_milestone = None
 
     newly_reached = [
         m for m in MILESTONES if pct >= m and m not in st.session_state.celebrated_milestones
@@ -67,9 +75,11 @@ def _sync_milestones():
     if newly_reached:
         highest = max(newly_reached)
         st.session_state.celebrated_milestones.extend(newly_reached)
-        st.session_state.active_flower_milestone = highest
+        if highest != st.session_state.dismissed_milestone:
+            st.session_state.active_flower_milestone = highest
+            st.session_state.sound_trigger_id += 1
     elif (
-        st.session_state.active_flower_milestone
+        st.session_state.active_flower_milestone is not None
         and pct < st.session_state.active_flower_milestone
     ):
         st.session_state.active_flower_milestone = None
@@ -101,6 +111,11 @@ def remove_entry(index):
         _sync_milestones()
 
 
+def dismiss_flower():
+    st.session_state.dismissed_milestone = st.session_state.active_flower_milestone
+    st.session_state.active_flower_milestone = None
+
+
 def ask_new_day():
     st.session_state.show_reset_confirm = True
 
@@ -114,6 +129,7 @@ def reset_new_day():
     st.session_state.show_reset_confirm = False
     st.session_state.celebrated_milestones = []
     st.session_state.active_flower_milestone = None
+    st.session_state.dismissed_milestone = None
 
 
 # ───────────────────────── Styling ─────────────────────────
@@ -214,50 +230,119 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.4;
   background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }
 
-/* ── cute blooming flower milestone popup ── */
-.wb-flower-pop{
-  margin-top:12px; padding:14px 16px; border-radius:22px;
-  display:flex; align-items:center; gap:14px;
-  background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(247,232,255,.72));
+/* ── big screen-stage blossom + 3D stars (doesn't cover whole screen) ── */
+.wb-stage{
+  position:relative;
+  margin-top:14px;
+  padding:22px 18px 20px;
+  border-radius:26px;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255,255,255,.92), rgba(248,234,255,.68) 60%, rgba(214,238,255,.55) 100%);
   border:1.5px solid rgba(255,255,255,.95);
-  box-shadow:0 14px 32px rgba(108,92,231,.24), inset 0 1px 0 #fff;
-  animation:flowerPopIn .65s cubic-bezier(.34,1.56,.64,1) both;
+  box-shadow:0 20px 44px rgba(108,92,231,.24), inset 0 1.5px 0 #fff;
+  overflow:hidden;
+  perspective:900px;
+  animation:stagePop .72s cubic-bezier(.34,1.56,.64,1) both;
 }
-@keyframes flowerPopIn{
-  0%{ opacity:0; transform:translateY(16px) scale(.84); }
+@keyframes stagePop{
+  0%{ opacity:0; transform:translateY(24px) scale(.86) rotateX(14deg); }
+  100%{ opacity:1; transform:translateY(0) scale(1) rotateX(0deg); }
+}
+
+.wb-stage-center{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
+.wb-congrats{
+  font-size:clamp(1.35rem,3.4vw,1.95rem);
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,#6c5ce7 0%,#e84393 52%,#ff9f1c 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  margin-top:4px;
+  animation:congratsBounce .85s cubic-bezier(.34,1.56,.64,1) .15s both;
+}
+@keyframes congratsBounce{
+  0%{ opacity:0; transform:translateY(14px) scale(.75); }
   100%{ opacity:1; transform:translateY(0) scale(1); }
 }
-.wb-flower-wrap{
-  flex:0 0 auto; width:62px; height:62px; display:grid; place-items:center;
-  border-radius:20px; background:linear-gradient(145deg,#fff,#f5e8ff);
-  box-shadow:0 6px 16px rgba(232,121,168,.24), inset 0 1px 0 #fff;
+
+.wb-milestone-pill{
+  font-size:.76rem;
+  font-weight:800;
+  color:#7b2cbf;
+  background:rgba(255,255,255,.85);
+  border:1px solid rgba(232,121,168,.45);
+  padding:4px 12px;
+  border-radius:999px;
+  margin-top:6px;
 }
-.wb-flower-svg{
-  width:50px; height:50px; overflow:visible;
-  transform-origin:center;
-  animation:flowerBloom .85s cubic-bezier(.34,1.56,.64,1) .1s both, flowerSway 3.2s ease-in-out 1s infinite alternate;
+
+.wb-stage-sub{
+  font-size:.88rem;
+  font-weight:600;
+  color:var(--ink-soft);
+  margin-top:5px;
+  max-width:34ch;
 }
-@keyframes flowerBloom{
-  0%{ transform:scale(0) rotate(-35deg); opacity:0; }
-  65%{ transform:scale(1.12) rotate(6deg); opacity:1; }
-  100%{ transform:scale(1) rotate(0deg); opacity:1; }
+
+.wb-bloom-flower{
+  width:clamp(128px,26vw,176px);
+  height:clamp(128px,26vw,176px);
+  overflow:visible;
+  transform-origin:50% 62%;
+  filter:drop-shadow(0 12px 22px rgba(232,121,168,.35));
+  animation:popBlossom .9s cubic-bezier(.34,1.56,.64,1) .05s both, gentleFloat 3.4s ease-in-out 1s infinite alternate;
 }
-@keyframes flowerSway{
-  0%{ transform:rotate(-5deg) scale(1); }
-  100%{ transform:rotate(5deg) scale(1.04); }
+@keyframes popBlossom{
+  0%{ opacity:0; transform:scale(.15) rotate(-40deg); }
+  62%{ opacity:1; transform:scale(1.14) rotate(7deg); }
+  100%{ opacity:1; transform:scale(1) rotate(0deg); }
 }
-.wb-sparkle{ animation:twinkle 1.8s ease-in-out infinite alternate; transform-origin:center; }
-.wb-sparkle-2{ animation:twinkle 2.2s ease-in-out .5s infinite alternate; transform-origin:center; }
-@keyframes twinkle{
-  0%{ opacity:.35; transform:scale(.75); }
-  100%{ opacity:1; transform:scale(1.2); }
+@keyframes gentleFloat{
+  0%{ transform:translateY(0px) rotate(-3deg) scale(1); }
+  100%{ transform:translateY(-6px) rotate(3deg) scale(1.04); }
 }
-.wb-flower-badge{
-  display:inline-block; font-size:.7rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
-  color:#8e44ad; background:rgba(232,121,168,.18); padding:3px 9px; border-radius:99px; margin-bottom:3px;
+
+/* ── cute 3D-style tumbling stars around the flower ── */
+.wb-star-3d{
+  position:absolute;
+  z-index:1;
+  pointer-events:none;
+  transform-style:preserve-3d;
+  filter:drop-shadow(0 6px 10px rgba(108,92,231,.28));
 }
-.wb-flower-title{ font-weight:800; font-size:.98rem; color:var(--ink); line-height:1.25; }
-.wb-flower-sub{ font-size:.82rem; color:var(--ink-soft); font-weight:600; margin-top:2px; }
+.wb-star-3d svg{ width:100%; height:100%; display:block; }
+
+.wb-s1{ width:34px; height:34px; top:12%; left:8%;
+  animation:star3dA 3.8s ease-in-out infinite; }
+.wb-s2{ width:28px; height:28px; top:16%; right:10%;
+  animation:star3dB 4.2s ease-in-out .3s infinite; }
+.wb-s3{ width:38px; height:38px; bottom:18%; left:6%;
+  animation:star3dB 3.5s ease-in-out .6s infinite; }
+.wb-s4{ width:30px; height:30px; bottom:16%; right:8%;
+  animation:star3dA 4.0s ease-in-out .2s infinite; }
+.wb-s5{ width:24px; height:24px; top:48%; left:4%;
+  animation:star3dA 3.2s ease-in-out .8s infinite; }
+.wb-s6{ width:26px; height:26px; top:46%; right:4%;
+  animation:star3dB 3.6s ease-in-out .4s infinite; }
+
+@keyframes star3dA{
+  0%,100%{ transform:translateY(0px) rotateY(0deg) rotateZ(0deg) scale(.92); }
+  50%{ transform:translateY(-10px) rotateY(180deg) rotateZ(18deg) scale(1.14); }
+}
+@keyframes star3dB{
+  0%,100%{ transform:translateY(0px) rotateX(0deg) rotateZ(0deg) scale(1); }
+  50%{ transform:translateY(-12px) rotateX(180deg) rotateZ(-20deg) scale(1.16); }
+}
 
 /* ── records ── */
 .wb-rec{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:18px;
@@ -335,7 +420,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 @media (min-width:761px) and (max-width:1024px){ .wb-pill{ min-width:84px; } }
 
 @media (prefers-reduced-motion:reduce){
-  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-flower-pop,.wb-flower-svg,.wb-sparkle,.wb-sparkle-2{ animation:none !important; }
+  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-stage,.wb-congrats,.wb-bloom-flower,.wb-star-3d{ animation:none !important; }
   .wb-arc,.wb-lvl,.stApp [data-testid^="stBaseButton"]{ transition:none !important; }
 }
 </style>
@@ -365,57 +450,160 @@ def feedback(percent: float) -> str:
     return "You’re doing well. Every glass gets you closer! 💙"
 
 
-def flower_popup_html(milestone: int) -> str:
-    copy = {
-        25: ("25% Sprout Milestone!", "Your hydration flower just sprouted its first petals!"),
-        50: ("Halfway Bloom · 50%!", "You're halfway to your daily goal—keep watering!"),
-        75: ("75% Sunlit Blossom!", "So close now! Your flower is glowing brightly."),
-        100: ("100% Full Bloom! 🌸", "Daily hydration goal complete—your flower is in full bloom!"),
-    }
-    title, sub = copy.get(milestone, (f"{milestone}% Milestone!", "Keep up the awesome hydration!"))
+def play_pop_chime(trigger_id: int) -> None:
+    """Play a balloon-pop burst + bright blossom chime via Web Audio API."""
+    if trigger_id <= 0:
+        return
+    components.html(
+        f"""
+        <!-- trigger: {trigger_id} -->
+        <script>
+        (function() {{
+          try {{
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            if (ctx.state === "suspended") ctx.resume();
+
+            const now = ctx.currentTime;
+
+            // 1) Crisp balloon-pop thump + snap
+            const popOsc = ctx.createOscillator();
+            const popGain = ctx.createGain();
+            popOsc.type = "triangle";
+            popOsc.frequency.setValueAtTime(340, now);
+            popOsc.frequency.exponentialRampToValueAtTime(58, now + 0.11);
+
+            popGain.gain.setValueAtTime(0.001, now);
+            popGain.gain.linearRampToValueAtTime(0.45, now + 0.008);
+            popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+            popOsc.connect(popGain);
+            popGain.connect(ctx.destination);
+            popOsc.start(now);
+            popOsc.stop(now + 0.13);
+
+            // Short air burst for realistic pop transient
+            const bufferSize = Math.floor(ctx.sampleRate * 0.05);
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {{
+              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+            }}
+            const noise = ctx.createBufferSource();
+            noise.buffer = noiseBuffer;
+            const filter = ctx.createBiquadFilter();
+            filter.type = "bandpass";
+            filter.frequency.setValueAtTime(1400, now);
+            filter.Q.setValueAtTime(1.8, now);
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.32, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            noise.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start(now);
+
+            // 2) Cheerful flower-blossom arpeggio right after the pop
+            const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+            notes.forEach((freq, idx) => {{
+              const start = now + 0.07 + idx * 0.075;
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = "sine";
+              osc.frequency.setValueAtTime(freq, start);
+              gain.gain.setValueAtTime(0.001, start);
+              gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
+              gain.gain.exponentialRampToValueAtTime(0.0008, start + 0.32);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(start);
+              osc.stop(start + 0.34);
+            }});
+          }} catch (e) {{}}
+        }})();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+
+
+def _star_3d_svg(fill_top: str, fill_bottom: str) -> str:
     return f"""
-    <div class="wb-flower-pop" role="status" aria-live="polite">
-      <div class="wb-flower-wrap">
-        <svg class="wb-flower-svg" viewBox="0 0 80 80" aria-hidden="true">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <defs>
+        <linearGradient id="st_{fill_top.strip('#')}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="{fill_top}"/>
+          <stop offset="100%" stop-color="{fill_bottom}"/>
+        </linearGradient>
+      </defs>
+      <polygon points="24,3 29.8,16.4 44.3,17.8 33.3,27.3 36.6,41.6 24,34 11.4,41.6 14.7,27.3 3.7,17.8 18.2,16.4"
+               fill="url(#st_{fill_top.strip('#')})" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+      <polygon points="24,3 29.8,16.4 24,20.5" fill="#ffffff" opacity=".45"/>
+    </svg>
+    """
+
+
+def blossom_stage_html(milestone: int) -> str:
+    messages = {
+        25: "You hit 25% of your daily goal—your flower popped into bloom!",
+        50: "Halfway to your target at 50%—keep that fresh energy flowing!",
+        75: "75% complete—your hydration blossom is shining bright!",
+        100: "100% goal achieved—full flower power for staying hydrated!",
+    }
+    sub = messages.get(milestone, f"You crossed {milestone}% of your daily hydration target!")
+    return f"""
+    <div class="wb-stage" role="status" aria-live="polite">
+      <div class="wb-star-3d wb-s1">{_star_3d_svg("#ffe066", "#ff9f1c")}</div>
+      <div class="wb-star-3d wb-s2">{_star_3d_svg("#ff9ebb", "#e84393")}</div>
+      <div class="wb-star-3d wb-s3">{_star_3d_svg("#9bf6ff", "#4cc9f0")}</div>
+      <div class="wb-star-3d wb-s4">{_star_3d_svg("#bdb2ff", "#6c5ce7")}</div>
+      <div class="wb-star-3d wb-s5">{_star_3d_svg("#ffd6a5", "#f77f00")}</div>
+      <div class="wb-star-3d wb-s6">{_star_3d_svg("#caffbf", "#2ec4b6")}</div>
+
+      <div class="wb-stage-center">
+        <svg class="wb-bloom-flower" viewBox="0 0 120 120" aria-hidden="true">
           <defs>
-            <radialGradient id="petalGrad" cx="50%" cy="35%" r="65%">
-              <stop offset="0%" stop-color="#ffd6e8"/>
-              <stop offset="100%" stop-color="#ff85b3"/>
+            <radialGradient id="wbPetalMain" cx="50%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#ffe0ec"/>
+              <stop offset="55%" stop-color="#ff8fab"/>
+              <stop offset="100%" stop-color="#e84393"/>
             </radialGradient>
-            <radialGradient id="coreGrad" cx="40%" cy="35%" r="65%">
-              <stop offset="0%" stop-color="#fff3a1"/>
+            <radialGradient id="wbFlowerCenter" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#fff6b3"/>
               <stop offset="100%" stop-color="#ffb703"/>
             </radialGradient>
           </defs>
-          <!-- stem & cute leaves -->
-          <path d="M40 46 Q38 60 40 74" stroke="#48b884" stroke-width="4" stroke-linecap="round" fill="none"/>
-          <path d="M40 62 Q27 56 25 65 Q33 69 40 64 Z" fill="#5cd19a"/>
-          <path d="M40 57 Q53 51 55 60 Q47 64 40 59 Z" fill="#48b884"/>
-          <!-- 6 soft petals -->
-          <g fill="url(#petalGrad)">
-            <ellipse cx="40" cy="21" rx="8.5" ry="13"/>
-            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(60 40 36)"/>
-            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(120 40 36)"/>
-            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(180 40 36)"/>
-            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(240 40 36)"/>
-            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(300 40 36)"/>
+          <!-- stem & leaves -->
+          <path d="M60 72 Q58 94 60 112" stroke="#38b000" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <path d="M60 95 Q38 86 35 100 Q48 106 60 98 Z" fill="#55a630"/>
+          <path d="M60 88 Q82 79 85 93 Q72 99 60 91 Z" fill="#38b000"/>
+
+          <!-- 8 lush petals -->
+          <g fill="url(#wbPetalMain)" stroke="#ffffff" stroke-width="1.2">
+            <ellipse cx="60" cy="27" rx="12" ry="20"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(45 60 54)"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(90 60 54)"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(135 60 54)"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(180 60 54)"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(225 60 54)"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(270 60 54)"/>
+            <ellipse cx="60" cy="27" rx="12" ry="20" transform="rotate(315 60 54)"/>
           </g>
-          <!-- happy face center -->
-          <circle cx="40" cy="36" r="11.5" fill="url(#coreGrad)"/>
-          <circle cx="36.5" cy="34.5" r="1.4" fill="#4a3525"/>
-          <circle cx="43.5" cy="34.5" r="1.4" fill="#4a3525"/>
-          <circle cx="34.2" cy="37" r="1.7" fill="#ff8fa3" opacity=".75"/>
-          <circle cx="45.8" cy="37" r="1.7" fill="#ff8fa3" opacity=".75"/>
-          <path d="M37.5 38 Q40 40.8 42.5 38" stroke="#4a3525" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <!-- sparkles -->
-          <path class="wb-sparkle" d="M16 18 L17.5 22 L21.5 23.5 L17.5 25 L16 29 L14.5 25 L10.5 23.5 L14.5 22 Z" fill="#a29bfe"/>
-          <path class="wb-sparkle-2" d="M64 15 L65 18 L68 19 L65 20 L64 23 L63 20 L60 19 L63 18 Z" fill="#ff85b3"/>
+
+          <!-- happy blossom face -->
+          <circle cx="60" cy="54" r="17" fill="url(#wbFlowerCenter)" stroke="#fff" stroke-width="2"/>
+          <circle cx="54.5" cy="52" r="2.1" fill="#3d2c1e"/>
+          <circle cx="65.5" cy="52" r="2.1" fill="#3d2c1e"/>
+          <circle cx="51" cy="55.5" r="2.5" fill="#ff758f" opacity=".7"/>
+          <circle cx="69" cy="55.5" r="2.5" fill="#ff758f" opacity=".7"/>
+          <path d="M56 57.5 Q60 62 64 57.5" stroke="#3d2c1e" stroke-width="2.2" stroke-linecap="round" fill="none"/>
         </svg>
-      </div>
-      <div>
-        <div class="wb-flower-badge">Milestone Unlocked · {milestone}%</div>
-        <div class="wb-flower-title">{title}</div>
-        <div class="wb-flower-sub">{sub}</div>
+
+        <div class="wb-congrats">CONGRATULATIONS!</div>
+        <div class="wb-milestone-pill">🌸 {milestone}% Goal Milestone</div>
+        <div class="wb-stage-sub">{sub}</div>
       </div>
     </div>
     """
@@ -469,6 +657,11 @@ remaining = max(0, goal - total)
 percent = total / goal * 100
 progress = min(1.0, total / goal)
 avatar = AGE_AVATAR[st.session_state.age_group]
+active_milestone = st.session_state.active_flower_milestone
+
+# Trigger pop + chime sound when a new milestone unlocks
+if active_milestone is not None and st.session_state.sound_trigger_id > 0:
+    play_pop_chime(st.session_state.sound_trigger_id)
 
 # ───────────────────────── Header ─────────────────────────
 hour = datetime.now(TZ).hour
@@ -499,11 +692,7 @@ with tab_home:
     with left:
         with st.container(border=True):
             html('<div class="wb-h">Today’s progress</div>')
-            flower_banner = (
-                flower_popup_html(st.session_state.active_flower_milestone)
-                if st.session_state.active_flower_milestone
-                else ""
-            )
+            stage_html = blossom_stage_html(active_milestone) if active_milestone is not None else ""
             html(
                 f"""
                 <div class="wb-ring">{ring_svg(progress)}
@@ -515,9 +704,16 @@ with tab_home:
                 </div>
                 <div class="wb-left"><b>{remaining:,} ml ({fmt_liters(remaining)})</b><span>left to reach your daily goal</span></div>
                 <div class="wb-msg">{feedback(percent)}</div>
-                {flower_banner}
+                {stage_html}
                 """
             )
+            if active_milestone is not None:
+                st.button(
+                    "✨ Hide celebration",
+                    key="hide_flower_btn",
+                    use_container_width=True,
+                    on_click=dismiss_flower,
+                )
 
     with right:
         with st.container(border=True):
