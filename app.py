@@ -186,7 +186,7 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "accent2": "#e07a5f",
             "glass": "rgba(255,255,255,.48)",
             "glass_strong": "rgba(255,255,255,.76)",
-            "edge": "rgba(255,255,255,.88)",
+            "edge": "rgba(255,255,255,.94)",
         }
     if mode == "Twilight Indigo":
         return {
@@ -200,7 +200,7 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "accent2": "#38a3d1",
             "glass": "rgba(255,255,255,.46)",
             "glass_strong": "rgba(255,255,255,.74)",
-            "edge": "rgba(255,255,255,.86)",
+            "edge": "rgba(255,255,255,.92)",
         }
     return {
         "name": "Aqua Daylight",
@@ -213,7 +213,7 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
         "accent2": "#8d7ff5",
         "glass": "rgba(255,255,255,.45)",
         "glass_strong": "rgba(255,255,255,.72)",
-        "edge": "rgba(255,255,255,.84)",
+        "edge": "rgba(255,255,255,.90)",
     }
 
 
@@ -304,7 +304,14 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   padding:clamp(.9rem,2.5vw,2.1rem) clamp(.9rem,3vw,2.1rem) 4rem;
 }}
 
-/* ── liquid glass surfaces + cursor specular glare ── */
+/* ── liquid glass surfaces (no dark/black outline boxes) ── */
+.wb-glass,
+[data-testid="stVerticalBlockBorderWrapper"],
+[data-testid="stVerticalBlockBorderWrapper"] > div,
+[data-testid="stVerticalBlockBorderWrapper"] > div > div{{
+  border-color: var(--edge) !important;
+  outline: none !important;
+}}
 .wb-glass, [data-testid="stVerticalBlockBorderWrapper"]{{
   --mx: 18%; --my: 0%;
   position:relative; overflow:hidden;
@@ -318,7 +325,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
   background:radial-gradient(420px circle at var(--mx) var(--my), rgba(255,255,255,.58), transparent 62%);
 }}
-[data-testid="stVerticalBlockBorderWrapper"] > div{{ position:relative; }}
+[data-testid="stVerticalBlockBorderWrapper"] > div{{ position:relative; border:none !important; }}
 [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"]{{
   border-radius:20px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
 }}
@@ -594,7 +601,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .stApp [data-testid="stBaseButton-primary"] p{{ color:#fff !important; }}
 .stApp button:focus-visible, .stApp input:focus-visible{{ outline:3px solid rgba(108,92,231,.55) !important; outline-offset:2px; }}
 
-/* ── frosted segmented control & number input contrast ── */
+/* ── frosted segmented control & number input contrast (no dark outlines) ── */
 .stApp label, .stApp [data-testid="stWidgetLabel"] p{{ color:var(--ink) !important; font-weight:700 !important; }}
 [data-testid="stSegmentedControl"] > div, [data-testid="stSegmentedControl"] [role="radiogroup"]{{
   background:rgba(255,255,255,.72) !important; border:1px solid rgba(255,255,255,.95) !important;
@@ -615,6 +622,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 [data-baseweb="select"] *, [data-baseweb="input"] input{{
   color:var(--ink) !important; background:transparent !important; -webkit-text-fill-color:var(--ink) !important;
+  border:none !important; outline:none !important;
 }}
 [data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{{ background:rgba(255,255,255,.96) !important; border-radius:16px !important; }}
 [data-testid="stNumberInput"] button{{
