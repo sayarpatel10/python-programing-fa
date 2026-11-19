@@ -30,6 +30,7 @@ AGE_AVATAR = {
     "Seniors (65+)": "🧓",
 }
 QUICK_POURS = (150, 250, 350, 500)
+MILESTONES = (25, 50, 75, 100)
 
 # ───────────────────────── State & callbacks ─────────────────────────
 DEFAULTS = {
@@ -38,6 +39,8 @@ DEFAULTS = {
     "entries": [],  # list of {"ml": int, "time": "03:00 PM"}
     "typed_amount": 0,
     "show_reset_confirm": False,
+    "celebrated_milestones": [],
+    "active_flower_milestone": None,
 }
 for _k, _v in DEFAULTS.items():
     if _k not in st.session_state:
@@ -48,12 +51,37 @@ def set_goal_from_age():
     st.session_state.daily_goal = AGE_GOALS[st.session_state.age_group]
 
 
+def _sync_milestones():
+    goal_val = max(1, int(st.session_state.daily_goal))
+    total_val = sum(e["ml"] for e in st.session_state.entries)
+    pct = (total_val / goal_val) * 100
+
+    # Keep only milestones still achieved (handles undo/delete cleanly)
+    st.session_state.celebrated_milestones = [
+        m for m in st.session_state.celebrated_milestones if pct >= m
+    ]
+
+    newly_reached = [
+        m for m in MILESTONES if pct >= m and m not in st.session_state.celebrated_milestones
+    ]
+    if newly_reached:
+        highest = max(newly_reached)
+        st.session_state.celebrated_milestones.extend(newly_reached)
+        st.session_state.active_flower_milestone = highest
+    elif (
+        st.session_state.active_flower_milestone
+        and pct < st.session_state.active_flower_milestone
+    ):
+        st.session_state.active_flower_milestone = None
+
+
 def add_water(amount):
     amount = int(amount or 0)
     if amount > 0:
         st.session_state.entries.append(
             {"ml": amount, "time": datetime.now(TZ).strftime("%I:%M %p")}
         )
+        _sync_milestones()
 
 
 def add_typed_water():
@@ -64,11 +92,13 @@ def add_typed_water():
 def undo_last():
     if st.session_state.entries:
         st.session_state.entries.pop()
+        _sync_milestones()
 
 
 def remove_entry(index):
     if 0 <= index < len(st.session_state.entries):
         st.session_state.entries.pop(index)
+        _sync_milestones()
 
 
 def ask_new_day():
@@ -82,6 +112,8 @@ def cancel_new_day():
 def reset_new_day():
     st.session_state.entries = []
     st.session_state.show_reset_confirm = False
+    st.session_state.celebrated_milestones = []
+    st.session_state.active_flower_milestone = None
 
 
 # ───────────────────────── Styling ─────────────────────────
@@ -151,7 +183,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .wb-tag{ color:var(--ink-soft); font-size:.92rem; margin-top:2px; }
 .wb-pills{ margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .wb-pill{ padding:9px 14px; border-radius:18px; background:var(--glass-strong); border:1px solid var(--edge);
-  text-align:center; min-width:96px; box-shadow:inset 0 1px 0 #fff; }
+  text-align:center; min-width:110px; box-shadow:inset 0 1px 0 #fff; }
 .wb-pill b{ display:block; font-size:1.02rem; font-weight:800; }
 .wb-pill small{ color:var(--ink-soft); font-size:.7rem; font-weight:600; }
 
@@ -172,14 +204,60 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .wb-ring-text{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; pointer-events:none; }
 .wb-big{ font-size:clamp(1.7rem,6vw,2.3rem); font-weight:800; letter-spacing:-.03em; line-height:1; }
 .wb-big small{ font-size:.5em; font-weight:700; color:var(--ink-soft); }
-.wb-of{ color:var(--ink-soft); font-size:.82rem; font-weight:600; margin-top:6px; }
+.wb-liters{ font-size:.98rem; font-weight:800; color:var(--accent); margin-top:4px; }
+.wb-of{ color:var(--ink-soft); font-size:.8rem; font-weight:600; margin-top:4px; }
 
-.wb-left{ display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border-radius:18px;
-  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }
-.wb-left b{ color:var(--accent); font-size:1.1rem; font-weight:800; }
-.wb-left span{ color:var(--ink-soft); font-size:.9rem; }
+.wb-left{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px; padding:12px 16px; border-radius:18px;
+  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; text-align:center; }
+.wb-left b{ color:var(--accent); font-size:1.05rem; font-weight:800; }
+.wb-left span{ color:var(--ink-soft); font-size:.88rem; }
 .wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.4;
   background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }
+
+/* ── cute blooming flower milestone popup ── */
+.wb-flower-pop{
+  margin-top:12px; padding:14px 16px; border-radius:22px;
+  display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(247,232,255,.72));
+  border:1.5px solid rgba(255,255,255,.95);
+  box-shadow:0 14px 32px rgba(108,92,231,.24), inset 0 1px 0 #fff;
+  animation:flowerPopIn .65s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes flowerPopIn{
+  0%{ opacity:0; transform:translateY(16px) scale(.84); }
+  100%{ opacity:1; transform:translateY(0) scale(1); }
+}
+.wb-flower-wrap{
+  flex:0 0 auto; width:62px; height:62px; display:grid; place-items:center;
+  border-radius:20px; background:linear-gradient(145deg,#fff,#f5e8ff);
+  box-shadow:0 6px 16px rgba(232,121,168,.24), inset 0 1px 0 #fff;
+}
+.wb-flower-svg{
+  width:50px; height:50px; overflow:visible;
+  transform-origin:center;
+  animation:flowerBloom .85s cubic-bezier(.34,1.56,.64,1) .1s both, flowerSway 3.2s ease-in-out 1s infinite alternate;
+}
+@keyframes flowerBloom{
+  0%{ transform:scale(0) rotate(-35deg); opacity:0; }
+  65%{ transform:scale(1.12) rotate(6deg); opacity:1; }
+  100%{ transform:scale(1) rotate(0deg); opacity:1; }
+}
+@keyframes flowerSway{
+  0%{ transform:rotate(-5deg) scale(1); }
+  100%{ transform:rotate(5deg) scale(1.04); }
+}
+.wb-sparkle{ animation:twinkle 1.8s ease-in-out infinite alternate; transform-origin:center; }
+.wb-sparkle-2{ animation:twinkle 2.2s ease-in-out .5s infinite alternate; transform-origin:center; }
+@keyframes twinkle{
+  0%{ opacity:.35; transform:scale(.75); }
+  100%{ opacity:1; transform:scale(1.2); }
+}
+.wb-flower-badge{
+  display:inline-block; font-size:.7rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+  color:#8e44ad; background:rgba(232,121,168,.18); padding:3px 9px; border-radius:99px; margin-bottom:3px;
+}
+.wb-flower-title{ font-weight:800; font-size:.98rem; color:var(--ink); line-height:1.25; }
+.wb-flower-sub{ font-size:.82rem; color:var(--ink-soft); font-weight:600; margin-top:2px; }
 
 /* ── records ── */
 .wb-rec{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:18px;
@@ -187,11 +265,14 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .wb-rec-ic{ width:38px; height:38px; border-radius:13px; display:grid; place-items:center; font-size:1.1rem;
   background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; }
 .wb-rec-t{ font-weight:700; font-size:.95rem; } .wb-rec-s{ color:var(--ink-soft); font-size:.78rem; }
-.wb-rec-ml{ margin-left:auto; font-weight:800; white-space:nowrap; }
+.wb-rec-ml{ margin-left:auto; font-weight:800; white-space:nowrap; text-align:right; }
+.wb-rec-ml small{ display:block; font-size:.72rem; font-weight:700; color:var(--ink-soft); }
 .wb-empty{ text-align:center; color:var(--ink-soft); padding:1.4rem .5rem; font-weight:600; }
 .wb-stat{ text-align:center; padding:12px 8px; border-radius:18px; background:var(--glass-strong);
   border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }
-.wb-stat b{ display:block; font-size:1.2rem; font-weight:800; } .wb-stat small{ color:var(--ink-soft); font-weight:600; font-size:.74rem; }
+.wb-stat b{ display:block; font-size:1.15rem; font-weight:800; }
+.wb-stat span{ display:block; font-size:.78rem; font-weight:700; color:var(--accent); margin-top:1px; }
+.wb-stat small{ color:var(--ink-soft); font-weight:600; font-size:.74rem; }
 .wb-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
 
 /* ── tabs as floating glass pill ── */
@@ -248,15 +329,13 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
   .wb-hero{ flex-wrap:wrap; } .wb-pills{ margin-left:0; width:100%; justify-content:stretch; } .wb-pill{ flex:1; }
   [data-baseweb="tab"]{ padding:8px 16px !important; }
 }
-/* landscape phones / short screens */
 @media (max-height:520px) and (orientation:landscape){
   .wb-ring{ width:min(100%,200px); } .wb-hero{ padding:12px 16px; } .wb-tag{ display:none; }
 }
-/* tablets: keep two columns readable */
 @media (min-width:761px) and (max-width:1024px){ .wb-pill{ min-width:84px; } }
 
 @media (prefers-reduced-motion:reduce){
-  .stApp::before,.stApp::after,.wb-w1,.wb-w2{ animation:none !important; }
+  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-flower-pop,.wb-flower-svg,.wb-sparkle,.wb-sparkle-2{ animation:none !important; }
   .wb-arc,.wb-lvl,.stApp [data-testid^="stBaseButton"]{ transition:none !important; }
 }
 </style>
@@ -270,6 +349,12 @@ def html(markup: str) -> None:
     st.markdown("".join(line.strip() for line in markup.splitlines()), unsafe_allow_html=True)
 
 
+def fmt_liters(ml: float) -> str:
+    """Format milliliters into clean liters (e.g., 2250 -> '2.25 L', 500 -> '0.5 L')."""
+    liters = f"{ml / 1000:.2f}".rstrip("0").rstrip(".")
+    return f"{liters} L"
+
+
 def feedback(percent: float) -> str:
     if percent >= 100:
         return "Great job! You reached your goal today! 🎉"
@@ -278,6 +363,62 @@ def feedback(percent: float) -> str:
     if percent >= 50:
         return "Great! You reached 50%! 😊"
     return "You’re doing well. Every glass gets you closer! 💙"
+
+
+def flower_popup_html(milestone: int) -> str:
+    copy = {
+        25: ("25% Sprout Milestone!", "Your hydration flower just sprouted its first petals!"),
+        50: ("Halfway Bloom · 50%!", "You're halfway to your daily goal—keep watering!"),
+        75: ("75% Sunlit Blossom!", "So close now! Your flower is glowing brightly."),
+        100: ("100% Full Bloom! 🌸", "Daily hydration goal complete—your flower is in full bloom!"),
+    }
+    title, sub = copy.get(milestone, (f"{milestone}% Milestone!", "Keep up the awesome hydration!"))
+    return f"""
+    <div class="wb-flower-pop" role="status" aria-live="polite">
+      <div class="wb-flower-wrap">
+        <svg class="wb-flower-svg" viewBox="0 0 80 80" aria-hidden="true">
+          <defs>
+            <radialGradient id="petalGrad" cx="50%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#ffd6e8"/>
+              <stop offset="100%" stop-color="#ff85b3"/>
+            </radialGradient>
+            <radialGradient id="coreGrad" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#fff3a1"/>
+              <stop offset="100%" stop-color="#ffb703"/>
+            </radialGradient>
+          </defs>
+          <!-- stem & cute leaves -->
+          <path d="M40 46 Q38 60 40 74" stroke="#48b884" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M40 62 Q27 56 25 65 Q33 69 40 64 Z" fill="#5cd19a"/>
+          <path d="M40 57 Q53 51 55 60 Q47 64 40 59 Z" fill="#48b884"/>
+          <!-- 6 soft petals -->
+          <g fill="url(#petalGrad)">
+            <ellipse cx="40" cy="21" rx="8.5" ry="13"/>
+            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(60 40 36)"/>
+            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(120 40 36)"/>
+            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(180 40 36)"/>
+            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(240 40 36)"/>
+            <ellipse cx="40" cy="21" rx="8.5" ry="13" transform="rotate(300 40 36)"/>
+          </g>
+          <!-- happy face center -->
+          <circle cx="40" cy="36" r="11.5" fill="url(#coreGrad)"/>
+          <circle cx="36.5" cy="34.5" r="1.4" fill="#4a3525"/>
+          <circle cx="43.5" cy="34.5" r="1.4" fill="#4a3525"/>
+          <circle cx="34.2" cy="37" r="1.7" fill="#ff8fa3" opacity=".75"/>
+          <circle cx="45.8" cy="37" r="1.7" fill="#ff8fa3" opacity=".75"/>
+          <path d="M37.5 38 Q40 40.8 42.5 38" stroke="#4a3525" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <!-- sparkles -->
+          <path class="wb-sparkle" d="M16 18 L17.5 22 L21.5 23.5 L17.5 25 L16 29 L14.5 25 L10.5 23.5 L14.5 22 Z" fill="#a29bfe"/>
+          <path class="wb-sparkle-2" d="M64 15 L65 18 L68 19 L65 20 L64 23 L63 20 L60 19 L63 18 Z" fill="#ff85b3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="wb-flower-badge">Milestone Unlocked · {milestone}%</div>
+        <div class="wb-flower-title">{title}</div>
+        <div class="wb-flower-sub">{sub}</div>
+      </div>
+    </div>
+    """
 
 
 def ring_svg(progress: float) -> str:
@@ -316,7 +457,7 @@ def record_row(entry: dict) -> str:
     return (
         f'<div class="wb-rec"><div class="wb-rec-ic">💧</div>'
         f'<div><div class="wb-rec-t">{entry["time"]}</div><div class="wb-rec-s">Water</div></div>'
-        f'<div class="wb-rec-ml">{entry["ml"]:,} ml</div></div>'
+        f'<div class="wb-rec-ml">{entry["ml"]:,} ml<small>{fmt_liters(entry["ml"])}</small></div></div>'
     )
 
 
@@ -342,7 +483,7 @@ html(
         <div class="wb-tag">A little water. A brighter day.</div>
       </div>
       <div class="wb-pills">
-        <div class="wb-pill"><b>{goal:,} ml</b><small>Daily goal</small></div>
+        <div class="wb-pill"><b>{goal:,} ml · {fmt_liters(goal)}</b><small>Daily goal</small></div>
         <div class="wb-pill"><b>{len(entries)}</b><small>Drinks logged</small></div>
       </div>
     </div>
@@ -358,16 +499,23 @@ with tab_home:
     with left:
         with st.container(border=True):
             html('<div class="wb-h">Today’s progress</div>')
+            flower_banner = (
+                flower_popup_html(st.session_state.active_flower_milestone)
+                if st.session_state.active_flower_milestone
+                else ""
+            )
             html(
                 f"""
                 <div class="wb-ring">{ring_svg(progress)}
                   <div class="wb-ring-text">
                     <div class="wb-big">{total:,}<small> ml</small></div>
-                    <div class="wb-of">of {goal:,} ml · {int(round(percent))}%</div>
+                    <div class="wb-liters">{fmt_liters(total)}</div>
+                    <div class="wb-of">of {goal:,} ml ({fmt_liters(goal)}) · {int(round(percent))}%</div>
                   </div>
                 </div>
-                <div class="wb-left"><b>{remaining:,} ml</b><span>left to reach your daily goal</span></div>
+                <div class="wb-left"><b>{remaining:,} ml ({fmt_liters(remaining)})</b><span>left to reach your daily goal</span></div>
                 <div class="wb-msg">{feedback(percent)}</div>
+                {flower_banner}
                 """
             )
 
@@ -378,7 +526,7 @@ with tab_home:
             with st.container(key="quick"):
                 for col, amount in zip(st.columns(len(QUICK_POURS)), QUICK_POURS):
                     col.button(
-                        f"+{amount} ml",
+                        f"+{amount} ml ({fmt_liters(amount)})",
                         key=f"quick_{amount}",
                         use_container_width=True,
                         on_click=add_water,
@@ -419,9 +567,9 @@ with tab_records:
         html(
             f"""
             <div class="wb-stats">
-              <div class="wb-stat"><b>{total:,}</b><small>Total ml</small></div>
-              <div class="wb-stat"><b>{average:,}</b><small>Average ml</small></div>
-              <div class="wb-stat"><b>{largest:,}</b><small>Largest ml</small></div>
+              <div class="wb-stat"><b>{total:,} ml</b><span>{fmt_liters(total)}</span><small>Total</small></div>
+              <div class="wb-stat"><b>{average:,} ml</b><span>{fmt_liters(average)}</span><small>Average</small></div>
+              <div class="wb-stat"><b>{largest:,} ml</b><span>{fmt_liters(largest)}</span><small>Largest</small></div>
             </div>
             """
         )
@@ -431,15 +579,20 @@ with tab_records:
                     row, btn = st.columns([5, 1], vertical_alignment="center")
                     with row:
                         html(record_row(entries[idx]))
-                    btn.button("✕", key=f"del_{idx}_{entries[idx]['time']}", on_click=remove_entry, args=(idx,),
-                               help="Remove this entry")
+                    btn.button(
+                        "✕",
+                        key=f"del_{idx}_{entries[idx]['time']}",
+                        on_click=remove_entry,
+                        args=(idx,),
+                        help="Remove this entry",
+                    )
         else:
             html('<div class="wb-empty">Nothing logged yet today.</div>')
 
     if st.session_state.show_reset_confirm:
         with st.container(border=True):
             html('<div class="wb-h">Start a new day?</div>')
-            html('<div class="wb-sub">This clears today’s drinks and sets your total back to 0 ml.</div>')
+            html('<div class="wb-sub">This clears today’s drinks and sets your total back to 0 ml (0 L).</div>')
             c1, c2 = st.columns(2)
             c1.button("Yes, reset", type="primary", use_container_width=True, on_click=reset_new_day)
             c2.button("Cancel", use_container_width=True, on_click=cancel_new_day)
@@ -450,9 +603,19 @@ with tab_records:
 with tab_settings:
     with st.container(border=True):
         html('<div class="wb-h">Set your daily target</div>')
-        html('<div class="wb-sub">Choose an age group to get a suggested goal. You can adjust it anytime.</div>')
+        html(
+            f'<div class="wb-sub">Current goal: <b>{goal:,} ml ({fmt_liters(goal)})</b>. '
+            'Choose an age group or adjust anytime.</div>'
+        )
         s1, s2 = st.columns(2, gap="medium")
         s1.selectbox("Age group", list(AGE_GOALS), key="age_group", on_change=set_goal_from_age)
-        s2.number_input("Daily goal (ml)", min_value=250, max_value=6000, step=50, key="daily_goal")
+        s2.number_input(
+            "Daily goal (ml)",
+            min_value=250,
+            max_value=6000,
+            step=50,
+            key="daily_goal",
+            on_change=_sync_milestones,
+        )
 
 st.caption("Your progress stays in this browser session and is not sent to an account.")
