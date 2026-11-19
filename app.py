@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ───────────────────────── Constants ─────────────────────────
-TZ = ZoneInfo("Asia/Kolkata")  # change to your users' timezone
+TZ = ZoneInfo("Asia/Kolkata")
 RING_R = 90
 RING_C = 2 * 3.14159265 * RING_R
 
@@ -32,12 +32,16 @@ AGE_AVATAR = {
 }
 QUICK_POURS = (150, 250, 350, 500)
 MILESTONES = (25, 50, 75, 100)
+MOMENT_TAGS = ("Sip", "Morning", "Study", "Workout")
 
 # ───────────────────────── State & callbacks ─────────────────────────
 DEFAULTS = {
     "age_group": "Adults (14 to 64)",
     "daily_goal": AGE_GOALS["Adults (14 to 64)"],
-    "entries": [],  # list of {"ml": int, "time": "03:00 PM"}
+    "bottle_ml": 750,
+    "selected_tag": "Sip",
+    "sound_enabled": True,
+    "entries": [],  # list of {"ml": int, "time": "03:00 PM", "tag": "Study"}
     "typed_amount": 0,
     "show_reset_confirm": False,
     "celebrated_milestones": [],
@@ -77,7 +81,8 @@ def _sync_milestones():
         st.session_state.celebrated_milestones.extend(newly_reached)
         if highest != st.session_state.dismissed_milestone:
             st.session_state.active_flower_milestone = highest
-            st.session_state.sound_trigger_id += 1
+            if st.session_state.sound_enabled:
+                st.session_state.sound_trigger_id += 1
     elif (
         st.session_state.active_flower_milestone is not None
         and pct < st.session_state.active_flower_milestone
@@ -85,11 +90,16 @@ def _sync_milestones():
         st.session_state.active_flower_milestone = None
 
 
-def add_water(amount):
+def add_water(amount, tag=None):
     amount = int(amount or 0)
     if amount > 0:
+        chosen_tag = tag or st.session_state.get("selected_tag", "Sip")
         st.session_state.entries.append(
-            {"ml": amount, "time": datetime.now(TZ).strftime("%I:%M %p")}
+            {
+                "ml": amount,
+                "time": datetime.now(TZ).strftime("%I:%M %p"),
+                "tag": chosen_tag,
+            }
         )
         _sync_milestones()
 
@@ -135,21 +145,21 @@ def reset_new_day():
 # ───────────────────────── Styling ─────────────────────────
 CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root{
-  --ink:#25235a; --ink-soft:#5f5f93; --accent:#6c5ce7; --accent-2:#8d7ff5;
+  --ink:#222052; --ink-soft:#5b5b8e; --accent:#6c5ce7; --accent-2:#8d7ff5;
   --sky:#a9d2ea; --lav:#d6d0f8;
-  --glass:rgba(255,255,255,.36); --glass-strong:rgba(255,255,255,.58);
-  --edge:rgba(255,255,255,.72);
-  --shadow:0 18px 44px rgba(84,72,170,.16);
+  --glass:rgba(255,255,255,.38); --glass-strong:rgba(255,255,255,.62);
+  --edge:rgba(255,255,255,.78);
+  --shadow:0 18px 44px rgba(78,66,164,.14);
   color-scheme: light;
 }
 
 /* ── base + animated liquid backdrop ── */
 html, body, .stApp, [data-testid="stAppViewContainer"]{
   color-scheme: light !important; color: var(--ink);
-  background: linear-gradient(155deg,#bfe0f0 0%,#d9d3f8 52%,#c2d8f2 100%) fixed !important;
+  background: linear-gradient(155deg,#c3e3f2 0%,#dcd5fa 52%,#c5dcf4 100%) fixed !important;
 }
 .stApp, .stApp p, .stApp label, .stApp button, .stApp input, .stApp div,
 .stApp h1, .stApp h2, .stApp h3, .stApp h4{
@@ -157,63 +167,71 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 }
 .stApp::before, .stApp::after{
   content:""; position:fixed; z-index:0; pointer-events:none; border-radius:50%;
-  filter:blur(60px); opacity:.75;
+  filter:blur(64px); opacity:.72;
 }
 .stApp::before{ width:46vmax; height:46vmax; left:-14vmax; top:-12vmax;
-  background:radial-gradient(circle,#9a8cff 0%,transparent 68%); animation:drift 22s ease-in-out infinite alternate; }
+  background:radial-gradient(circle,#9e90ff 0%,transparent 68%); animation:drift 22s ease-in-out infinite alternate; }
 .stApp::after{ width:42vmax; height:42vmax; right:-12vmax; bottom:-14vmax;
-  background:radial-gradient(circle,#6fc3e8 0%,transparent 68%); animation:drift 26s ease-in-out infinite alternate-reverse; }
+  background:radial-gradient(circle,#6ec4ea 0%,transparent 68%); animation:drift 26s ease-in-out infinite alternate-reverse; }
 @keyframes drift{ to{ transform:translate(6vmax,4vmax) scale(1.08); } }
 
 [data-testid="stHeader"]{ background:transparent !important; }
 #MainMenu, footer, [data-testid="stDecoration"]{ display:none !important; }
 [data-testid="stMainBlockContainer"], .block-container{
   position:relative; z-index:1; max-width:1120px; margin:0 auto;
-  padding:clamp(.8rem,2.5vw,2rem) clamp(.8rem,3vw,2rem) 4rem;
+  padding:clamp(.85rem,2.5vw,2rem) clamp(.85rem,3vw,2rem) 4rem;
 }
 
 /* ── liquid glass surfaces ── */
 .wb-glass, [data-testid="stVerticalBlockBorderWrapper"]{
   position:relative; overflow:hidden;
-  background:linear-gradient(135deg,rgba(255,255,255,.52),rgba(255,255,255,.22)) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(170%); backdrop-filter:blur(24px) saturate(170%);
+  background:linear-gradient(135deg,rgba(255,255,255,.58),rgba(255,255,255,.26)) !important;
+  -webkit-backdrop-filter:blur(26px) saturate(175%); backdrop-filter:blur(26px) saturate(175%);
   border:1px solid var(--edge) !important; border-radius:28px !important;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.25), var(--shadow);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.28), var(--shadow);
 }
 .wb-glass::before, [data-testid="stVerticalBlockBorderWrapper"]::before{
   content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
-  background:radial-gradient(120% 70% at 12% -10%,rgba(255,255,255,.55),transparent 55%);
+  background:radial-gradient(125% 75% at 10% -12%,rgba(255,255,255,.62),transparent 56%);
 }
 [data-testid="stVerticalBlockBorderWrapper"] > div{ position:relative; }
 [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"]{
-  border-radius:20px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  border-radius:20px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
 }
 
 /* ── header ── */
-.wb-hero{ display:flex; align-items:center; gap:clamp(12px,2.4vw,20px); padding:clamp(16px,3vw,26px); margin-bottom:1rem; }
-.wb-avatar{ flex:0 0 auto; width:clamp(54px,9vw,72px); aspect-ratio:1; display:grid; place-items:center;
+.wb-hero{ display:flex; align-items:center; gap:clamp(12px,2.4vw,22px); padding:clamp(18px,3vw,28px); margin-bottom:1.05rem; }
+.wb-avatar{ flex:0 0 auto; width:clamp(56px,9vw,74px); aspect-ratio:1; display:grid; place-items:center;
   font-size:clamp(28px,5vw,38px); border-radius:50%;
-  background:linear-gradient(145deg,#fff,#e4defc); box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 8px 20px rgba(108,92,231,.25); }
-.wb-hello{ color:var(--ink-soft); font-size:.9rem; font-weight:600; }
-.wb-brand{ font-size:clamp(1.5rem,4vw,2.1rem); font-weight:800; letter-spacing:-.03em; line-height:1.1; }
-.wb-tag{ color:var(--ink-soft); font-size:.92rem; margin-top:2px; }
+  background:linear-gradient(145deg,#ffffff,#e6e0fc);
+  box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 10px 22px rgba(108,92,231,.24); }
+.wb-hello{ color:var(--ink-soft); font-size:.88rem; font-weight:600; letter-spacing:.01em; }
+.wb-brand{
+  font-family:'Fraunces',Georgia,serif !important;
+  font-size:clamp(1.65rem,4.2vw,2.3rem); font-weight:800; letter-spacing:-.025em; line-height:1.08;
+  color:var(--ink);
+}
+.wb-tag{ color:var(--ink-soft); font-size:.9rem; margin-top:3px; font-weight:500; }
 .wb-pills{ margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .wb-pill{ padding:9px 14px; border-radius:18px; background:var(--glass-strong); border:1px solid var(--edge);
-  text-align:center; min-width:106px; box-shadow:inset 0 1px 0 #fff; }
+  text-align:center; min-width:108px; box-shadow:inset 0 1px 0 #fff; }
 .wb-pill b{ display:block; font-size:1.02rem; font-weight:800; }
 .wb-pill small{ color:var(--ink-soft); font-size:.7rem; font-weight:600; }
 
 /* ── section titles ── */
-.wb-h{ font-size:1.12rem; font-weight:800; letter-spacing:-.01em; margin:.1rem 0 .15rem; }
-.wb-sub{ color:var(--ink-soft); font-size:.88rem; margin-bottom:.7rem; }
+.wb-h{
+  font-family:'Fraunces',Georgia,serif !important;
+  font-size:1.18rem; font-weight:700; letter-spacing:-.015em; margin:.1rem 0 .15rem;
+}
+.wb-sub{ color:var(--ink-soft); font-size:.88rem; margin-bottom:.75rem; }
 
 /* ── progress ring with liquid wave ── */
-.wb-ring{ position:relative; width:min(100%,300px); margin:.4rem auto .6rem; aspect-ratio:1; }
+.wb-ring{ position:relative; width:min(100%,292px); margin:.35rem auto .55rem; aspect-ratio:1; }
 .wb-ring svg{ width:100%; height:100%; display:block; overflow:visible; }
-.wb-track{ fill:none; stroke:rgba(255,255,255,.7); stroke-width:12; }
+.wb-track{ fill:none; stroke:rgba(255,255,255,.72); stroke-width:12; }
 .wb-arc{ fill:none; stroke:url(#wbArc); stroke-width:12; stroke-linecap:round;
-  transition:stroke-dasharray .9s cubic-bezier(.22,1,.36,1); filter:drop-shadow(0 4px 8px rgba(108,92,231,.35)); }
-.wb-lvl{ transition:transform 1s cubic-bezier(.22,1,.36,1); }
+  transition:stroke-dasharray .9s cubic-bezier(.16,1,.3,1); filter:drop-shadow(0 4px 8px rgba(108,92,231,.32)); }
+.wb-lvl{ transition:transform 1s cubic-bezier(.16,1,.3,1); }
 .wb-w1{ animation:slide 7s linear infinite; }
 .wb-w2{ animation:slide 11s linear infinite reverse; }
 @keyframes slide{ to{ transform:translateX(-100px); } }
@@ -227,10 +245,25 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
   background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; text-align:center; }
 .wb-left b{ color:var(--accent); font-size:1.05rem; font-weight:800; }
 .wb-left span{ color:var(--ink-soft); font-size:.88rem; }
+
 .wb-meta-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:10px; }
-.wb-chip{ font-size:.78rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.62);
+.wb-chip{ font-size:.77rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.64);
   border:1px solid var(--edge); padding:6px 12px; border-radius:999px; }
-.wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.4;
+
+.wb-milestones-strip{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;
+}
+.wb-ms-badge{
+  text-align:center; padding:7px 6px; border-radius:14px; font-size:.76rem; font-weight:800;
+  background:rgba(255,255,255,.38); border:1px solid rgba(255,255,255,.65); color:var(--ink-soft);
+}
+.wb-ms-badge.is-done{
+  background:linear-gradient(135deg,rgba(108,92,231,.22),rgba(111,195,232,.28));
+  border-color:rgba(255,255,255,.95); color:var(--ink);
+  box-shadow:inset 0 1px 0 #fff;
+}
+
+.wb-msg{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.42;
   background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }
 
 /* ── boxless single big 3D red rose in center (no text, fades smoothly after 5s) ── */
@@ -314,7 +347,8 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
   background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }
 .wb-rec-ic{ width:38px; height:38px; border-radius:13px; display:grid; place-items:center; font-size:1.1rem;
   background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; }
-.wb-rec-t{ font-weight:700; font-size:.95rem; } .wb-rec-s{ color:var(--ink-soft); font-size:.78rem; }
+.wb-rec-t{ font-weight:700; font-size:.95rem; }
+.wb-rec-s{ color:var(--ink-soft); font-size:.78rem; font-weight:600; }
 .wb-rec-ml{ margin-left:auto; font-weight:800; white-space:nowrap; text-align:right; }
 .wb-rec-ml small{ display:block; font-size:.72rem; font-weight:700; color:var(--ink-soft); }
 .wb-empty{ text-align:center; color:var(--ink-soft); padding:1.4rem .5rem; font-weight:600; }
@@ -355,13 +389,13 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{
 .stApp [data-testid="stBaseButton-primary"] p{ color:#fff !important; }
 .stApp button:focus-visible, .stApp input:focus-visible{ outline:3px solid rgba(108,92,231,.55) !important; outline-offset:2px; }
 
-/* ── inputs ── */
+/* ── inputs & pills ── */
 .stApp label, .stApp [data-testid="stWidgetLabel"] p{ color:var(--ink) !important; font-weight:700 !important; }
 [data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"]{
-  background:rgba(255,255,255,.7) !important; border-radius:16px !important; border-color:var(--edge) !important;
+  background:rgba(255,255,255,.72) !important; border-radius:16px !important; border-color:var(--edge) !important;
 }
 [data-baseweb="select"] *, [data-baseweb="input"] input{ color:var(--ink) !important; -webkit-text-fill-color:var(--ink) !important; }
-[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{ background:rgba(255,255,255,.92) !important; border-radius:16px !important; }
+[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{ background:rgba(255,255,255,.94) !important; border-radius:16px !important; }
 [data-testid="stNumberInput"] button{ min-height:0 !important; box-shadow:none !important; }
 
 /* ── responsive: quick pours 2×2 on phones, 4×1 on wider screens ── */
@@ -407,12 +441,23 @@ def fmt_liters(ml: float) -> str:
 
 def feedback(percent: float) -> str:
     if percent >= 100:
-        return "Great job! You reached your goal today! 🎉"
+        return "Goal achieved today — calm, steady hydration from start to finish. ✨"
     if percent >= 75:
-        return "Almost there! You are past 75%. 🌊"
+        return "Past 75% — you're in the home stretch for today's target. 🌊"
     if percent >= 50:
-        return "Great! You reached 50%! 😊"
-    return "You’re doing well. Every glass gets you closer! 💙"
+        return "Halfway there — your hydration curve is building nicely. 😊"
+    return "Every glass counts — steady sips keep focus and energy smooth. 💙"
+
+
+def pace_status(now_dt: datetime, current_pct: float) -> str:
+    """Gentle daytime pace estimate across waking hours (7 AM to 10 PM)."""
+    minutes_since_wake = max(0, min(15 * 60, (now_dt.hour * 60 + now_dt.minute) - 7 * 60))
+    expected_pct = (minutes_since_wake / (15 * 60)) * 100
+    if current_pct >= 100:
+        return "✨ Goal complete"
+    if current_pct + 8 >= expected_pct:
+        return "🌿 On pace"
+    return "💧 Gentle catch-up"
 
 
 def play_water_then_congrats(trigger_id: int) -> None:
@@ -605,7 +650,7 @@ def single_rose_and_falling_stars_html() -> str:
 
 def ring_svg(progress: float) -> str:
     dash = RING_C * progress
-    level = 172 - 144 * progress  # inner circle spans y=28 → y=172
+    level = 172 - 144 * progress
     wave = (
         "M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 "
         "T400 10 V220 H0 Z"
@@ -636,15 +681,18 @@ def ring_svg(progress: float) -> str:
 
 
 def record_row(entry: dict) -> str:
+    tag_label = entry.get("tag") or "Water"
     return (
         f'<div class="wb-rec"><div class="wb-rec-ic">💧</div>'
-        f'<div><div class="wb-rec-t">{entry["time"]}</div><div class="wb-rec-s">Water</div></div>'
+        f'<div><div class="wb-rec-t">{entry["time"]}</div><div class="wb-rec-s">{tag_label}</div></div>'
         f'<div class="wb-rec-ml">{entry["ml"]:,} ml<small>{fmt_liters(entry["ml"])}</small></div></div>'
     )
 
 
 # ───────────────────────── Derived values ─────────────────────────
+now_ist = datetime.now(TZ)
 goal = max(1, int(st.session_state.daily_goal))
+bottle_ml = max(50, int(st.session_state.bottle_ml))
 entries = st.session_state.entries
 total = sum(e["ml"] for e in entries)
 remaining = max(0, goal - total)
@@ -654,16 +702,16 @@ avatar = AGE_AVATAR[st.session_state.age_group]
 active_milestone = st.session_state.active_flower_milestone
 glasses_250 = total / 250
 glasses_label = f"{glasses_250:.1f}".rstrip("0").rstrip(".")
+pace_label = pace_status(now_ist, percent)
 
-# Trigger water sound first, then "Congratulations!" when a new milestone unlocks
-if active_milestone is not None and st.session_state.sound_trigger_id > 0:
+if active_milestone is not None and st.session_state.sound_trigger_id > 0 and st.session_state.sound_enabled:
     play_water_then_congrats(st.session_state.sound_trigger_id)
 
 if active_milestone is not None:
     html(single_rose_and_falling_stars_html())
 
 # ───────────────────────── Header ─────────────────────────
-hour = datetime.now(TZ).hour
+hour = now_ist.hour
 greeting = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
 html(
     f"""
@@ -677,7 +725,7 @@ html(
       <div class="wb-pills">
         <div class="wb-pill"><b>{goal:,} ml · {fmt_liters(goal)}</b><small>Daily goal</small></div>
         <div class="wb-pill"><b>{len(entries)}</b><small>Drinks logged</small></div>
-        <div class="wb-pill"><b>{glasses_label} 🥤</b><small>250 ml glasses</small></div>
+        <div class="wb-pill"><b>{pace_label}</b><small>Daytime pace</small></div>
       </div>
     </div>
     """
@@ -692,6 +740,11 @@ with tab_home:
     with left:
         with st.container(border=True):
             html('<div class="wb-h">Today’s progress</div>')
+            ms_badges_html = "".join(
+                f'<div class="wb-ms-badge{" is-done" if percent >= m else ""}">'
+                f'{"🌹 " if percent >= m else ""}{m}%</div>'
+                for m in MILESTONES
+            )
             html(
                 f"""
                 <div class="wb-ring">{ring_svg(progress)}
@@ -704,8 +757,9 @@ with tab_home:
                 <div class="wb-left"><b>{remaining:,} ml ({fmt_liters(remaining)})</b><span>left to reach your daily goal</span></div>
                 <div class="wb-meta-row">
                   <span class="wb-chip">🥤 {glasses_label} glasses today</span>
-                  <span class="wb-chip">🌸 Milestones: 25% · 50% · 75% · 100%</span>
+                  <span class="wb-chip">🫙 Bottle: {bottle_ml:,} ml ({fmt_liters(bottle_ml)})</span>
                 </div>
+                <div class="wb-milestones-strip">{ms_badges_html}</div>
                 <div class="wb-msg">{feedback(percent)}</div>
                 """
             )
@@ -720,7 +774,12 @@ with tab_home:
     with right:
         with st.container(border=True):
             html('<div class="wb-h">Log some water</div>')
-            html('<div class="wb-sub">Quick sip, glass, bottle, or big chug — every drop counts.</div>')
+            html('<div class="wb-sub">Pick a moment tag, choose a quick pour, or log your bottle.</div>')
+            st.segmented_control(
+                "Drink moment",
+                options=list(MOMENT_TAGS),
+                key="selected_tag",
+            )
             with st.container(key="quick"):
                 for col, amount in zip(st.columns(len(QUICK_POURS)), QUICK_POURS):
                     col.button(
@@ -730,19 +789,27 @@ with tab_home:
                         on_click=add_water,
                         args=(amount,),
                     )
+            b_col1, b_col2 = st.columns(2)
+            b_col1.button(
+                f"🫙 +Bottle ({bottle_ml:,} ml · {fmt_liters(bottle_ml)})",
+                key="add_bottle_btn",
+                use_container_width=True,
+                on_click=add_water,
+                args=(bottle_ml,),
+            )
+            b_col2.button(
+                "↩︎ Undo last",
+                key="undo_home",
+                disabled=not entries,
+                use_container_width=True,
+                on_click=undo_last,
+            )
             entry_col, button_col = st.columns([2, 1], vertical_alignment="bottom")
             entry_col.number_input(
                 "Or type an amount (ml)", min_value=0, max_value=3000, step=50, key="typed_amount"
             )
             button_col.button(
                 "Add amount", type="primary", use_container_width=True, on_click=add_typed_water
-            )
-            st.button(
-                "↩︎ Undo last",
-                key="undo_home",
-                disabled=not entries,
-                use_container_width=True,
-                on_click=undo_last,
             )
 
         with st.container(border=True):
@@ -802,8 +869,8 @@ with tab_settings:
     with st.container(border=True):
         html('<div class="wb-h">Set your daily target</div>')
         html(
-            f'<div class="wb-sub">Current goal: <b>{goal:,} ml ({fmt_liters(goal)})</b>. '
-            'Choose an age group or adjust anytime.</div>'
+            f'<div class="wb-sub">Current goal: <b>{goal:,} ml ({fmt_liters(goal)})</b> · '
+            f'Bottle preset: <b>{bottle_ml:,} ml ({fmt_liters(bottle_ml)})</b>.</div>'
         )
         s1, s2 = st.columns(2, gap="medium")
         s1.selectbox("Age group", list(AGE_GOALS), key="age_group", on_change=set_goal_from_age)
@@ -815,5 +882,14 @@ with tab_settings:
             key="daily_goal",
             on_change=_sync_milestones,
         )
+        s3, s4 = st.columns(2, gap="medium", vertical_alignment="center")
+        s3.number_input(
+            "Favorite bottle size (ml)",
+            min_value=100,
+            max_value=2500,
+            step=50,
+            key="bottle_ml",
+        )
+        s4.toggle("Milestone sound & voice", key="sound_enabled")
 
 st.caption("Your progress stays in this browser session and is not sent to an account.")
