@@ -180,7 +180,6 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "bg": "linear-gradient(155deg,#fde2e4 0%,#e8eef5 48%,#dfe7fd 100%)",
             "orb1": "#ffafcc",
             "orb2": "#90e0ef",
-            "orb3": "#ffd6a5",
             "ink": "#281e45",
             "ink_soft": "#655887",
             "accent": "#7b2cbf",
@@ -195,7 +194,6 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "bg": "linear-gradient(155deg,#cfd9f7 0%,#d8ccf7 50%,#bdd8f2 100%)",
             "orb1": "#7b6cf6",
             "orb2": "#38bdf8",
-            "orb3": "#a78bfa",
             "ink": "#1c1947",
             "ink_soft": "#4e4b82",
             "accent": "#5b46e8",
@@ -209,7 +207,6 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
         "bg": "linear-gradient(155deg,#c3e3f2 0%,#dcd5fa 52%,#c5dcf4 100%)",
         "orb1": "#9e90ff",
         "orb2": "#6ec4ea",
-        "orb3": "#90e0ef",
         "ink": "#222052",
         "ink_soft": "#5b5b8e",
         "accent": "#6c5ce7",
@@ -250,7 +247,7 @@ CSS = f"""
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root{{
-  --ink:{T['ink']}; --ink-soft:{T['ink_soft']}; --accent:{T['accent']}; --accent-2:{T['accent-2'] if 'accent-2' in T else T['accent2']};
+  --ink:{T['ink']}; --ink-soft:{T['ink_soft']}; --accent:{T['accent']}; --accent-2:{T['accent2']};
   --glass:{T['glass']}; --glass-strong:{T['glass_strong']};
   --edge:{T['edge']};
   --shadow:0 18px 44px rgba(78,66,164,.14);
@@ -304,14 +301,14 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 #MainMenu, footer, [data-testid="stDecoration"]{{ display:none !important; }}
 [data-testid="stMainBlockContainer"], .block-container{{
   position:relative; z-index:1; max-width:1120px; margin:0 auto;
-  padding:clamp(.85rem,2.5vw,2rem) clamp(.85rem,3vw,2rem) 4rem;
+  padding:clamp(.9rem,2.5vw,2.1rem) clamp(.9rem,3vw,2.1rem) 4rem;
 }}
 
 /* ── liquid glass surfaces + cursor specular glare ── */
 .wb-glass, [data-testid="stVerticalBlockBorderWrapper"]{{
   --mx: 18%; --my: 0%;
   position:relative; overflow:hidden;
-  background:linear-gradient(135deg,rgba(255,255,255,.60),rgba(255,255,255,.26)) !important;
+  background:linear-gradient(135deg,rgba(255,255,255,.62),rgba(255,255,255,.28)) !important;
   -webkit-backdrop-filter:blur(26px) saturate(175%); backdrop-filter:blur(26px) saturate(175%);
   border:1px solid var(--edge) !important; border-radius:28px !important;
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.28), var(--shadow);
@@ -327,33 +324,33 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 
 /* ── header ── */
-.wb-hero{{ display:flex; align-items:center; gap:clamp(12px,2.4vw,22px); padding:clamp(18px,3vw,28px); margin-bottom:1.05rem; }}
-.wb-avatar{{ flex:0 0 auto; width:clamp(56px,9vw,74px); aspect-ratio:1; display:grid; place-items:center;
+.wb-hero{{ display:flex; align-items:center; gap:clamp(14px,2.5vw,24px); padding:clamp(18px,3vw,28px); margin-bottom:1.15rem; }}
+.wb-avatar{{ flex:0 0 auto; width:clamp(58px,9vw,76px); aspect-ratio:1; display:grid; place-items:center;
   font-size:clamp(28px,5vw,38px); border-radius:50%;
   background:linear-gradient(145deg,#ffffff,#e6e0fc);
   box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 10px 22px rgba(108,92,231,.24); }}
-.wb-hello{{ color:var(--ink-soft); font-size:.88rem; font-weight:600; letter-spacing:.01em; }}
+.wb-hello{{ color:var(--ink-soft); font-size:.86rem; font-weight:600; letter-spacing:.02em; }}
 .wb-brand{{
   font-family:'Fraunces',Georgia,serif !important;
-  font-size:clamp(1.65rem,4.2vw,2.3rem); font-weight:800; letter-spacing:-.025em; line-height:1.08;
-  color:var(--ink);
+  font-size:clamp(1.75rem,4.4vw,2.45rem); font-weight:800; letter-spacing:-.025em; line-height:1.08;
+  color:var(--ink); margin-top:2px;
 }}
-.wb-tag{{ color:var(--ink-soft); font-size:.9rem; margin-top:3px; font-weight:500; }}
-.wb-pills{{ margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }}
-.wb-pill{{ padding:9px 14px; border-radius:18px; background:var(--glass-strong); border:1px solid var(--edge);
-  text-align:center; min-width:108px; box-shadow:inset 0 1px 0 #fff; }}
-.wb-pill b{{ display:block; font-size:1.02rem; font-weight:800; }}
-.wb-pill small{{ color:var(--ink-soft); font-size:.7rem; font-weight:600; }}
+.wb-tag{{ color:var(--ink-soft); font-size:.92rem; margin-top:5px; font-weight:500; letter-spacing:.005em; }}
+.wb-pills{{ margin-left:auto; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }}
+.wb-pill{{ padding:11px 16px; border-radius:20px; background:var(--glass-strong); border:1px solid var(--edge);
+  text-align:center; min-width:124px; box-shadow:inset 0 1px 0 #fff; }}
+.wb-pill b{{ display:block; font-size:1.03rem; font-weight:800; letter-spacing:-.01em; line-height:1.25; }}
+.wb-pill small{{ display:block; color:var(--ink-soft); font-size:.72rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; margin-top:3px; }}
 
 /* ── section titles ── */
 .wb-h{{
   font-family:'Fraunces',Georgia,serif !important;
-  font-size:1.18rem; font-weight:700; letter-spacing:-.015em; margin:.1rem 0 .15rem;
+  font-size:1.22rem; font-weight:700; letter-spacing:-.015em; margin:.1rem 0 .2rem;
 }}
-.wb-sub{{ color:var(--ink-soft); font-size:.88rem; margin-bottom:.75rem; }}
+.wb-sub{{ color:var(--ink-soft); font-size:.9rem; line-height:1.45; margin-bottom:.85rem; }}
 
-/* ── progress ring with liquid wave + rising micro-bubbles ── */
-.wb-ring{{ position:relative; width:min(100%,292px); margin:.35rem auto .55rem; aspect-ratio:1; }}
+/* ── progress ring with liquid wave + two rising water droplets ── */
+.wb-ring{{ position:relative; width:min(100%,292px); margin:.45rem auto .75rem; aspect-ratio:1; }}
 .wb-ring svg{{ width:100%; height:100%; display:block; overflow:visible; }}
 .wb-track{{ fill:none; stroke:rgba(255,255,255,.72); stroke-width:12; }}
 .wb-arc{{ fill:none; stroke:url(#wbArc); stroke-width:12; stroke-linecap:round;
@@ -363,37 +360,51 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .wb-w2{{ animation:slide 11s linear infinite reverse; }}
 @keyframes slide{{ to{{ transform:translateX(-100px); }} }}
 
-.wb-bub1{{ animation:bubbleRise 3.4s ease-in infinite; }}
-.wb-bub2{{ animation:bubbleRise 4.2s ease-in 1.1s infinite; }}
-.wb-bub3{{ animation:bubbleRise 3.8s ease-in 2.0s infinite; }}
-.wb-bub4{{ animation:bubbleRise 4.6s ease-in 0.6s infinite; }}
-@keyframes bubbleRise{{
-  0%{{ opacity:0; transform:translateY(0px) scale(.6); }}
-  25%{{ opacity:.75; }}
-  85%{{ opacity:.55; }}
-  100%{{ opacity:0; transform:translateY(-68px) scale(1.15); }}
+.wb-drop-a{{ animation:dropletFloatA 3.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }}
+.wb-drop-b{{ animation:dropletFloatB 4.4s ease-in-out 1.2s infinite; transform-box:fill-box; transform-origin:center; }}
+@keyframes dropletFloatA{{
+  0%{{ opacity:0; transform:translateY(12px) scale(.85); }}
+  25%{{ opacity:.92; }}
+  80%{{ opacity:.75; }}
+  100%{{ opacity:0; transform:translateY(-36px) scale(1.05); }}
+}}
+@keyframes dropletFloatB{{
+  0%{{ opacity:0; transform:translateY(16px) scale(.82); }}
+  28%{{ opacity:.88; }}
+  80%{{ opacity:.72; }}
+  100%{{ opacity:0; transform:translateY(-32px) scale(1.04); }}
 }}
 
-.wb-ring-text{{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; pointer-events:none; }}
-.wb-big{{ font-size:clamp(1.7rem,6vw,2.3rem); font-weight:800; letter-spacing:-.03em; line-height:1; }}
-.wb-big small{{ font-size:.5em; font-weight:700; color:var(--ink-soft); }}
-.wb-liters{{ font-size:.98rem; font-weight:800; color:var(--accent); margin-top:4px; }}
-.wb-of{{ color:var(--ink-soft); font-size:.8rem; font-weight:600; margin-top:4px; }}
+.wb-ring-text{{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; pointer-events:none; padding:0 18px; }}
+.wb-big{{ font-size:clamp(1.75rem,5.5vw,2.35rem); font-weight:800; letter-spacing:-.03em; line-height:1.05; }}
+.wb-big small{{ font-size:.48em; font-weight:700; color:var(--ink-soft); margin-left:2px; }}
+.wb-liters{{
+  display:inline-block; font-size:.92rem; font-weight:800; color:var(--accent);
+  background:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.9);
+  padding:2px 10px; border-radius:999px; margin-top:6px; letter-spacing:.01em;
+}}
+.wb-of{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:7px; line-height:1.35; }}
 
-.wb-left{{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px; padding:12px 16px; border-radius:18px;
-  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; text-align:center; }}
-.wb-left b{{ color:var(--accent); font-size:1.05rem; font-weight:800; }}
-.wb-left span{{ color:var(--ink-soft); font-size:.88rem; }}
+.wb-left{{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  padding:14px 18px; border-radius:20px; margin-top:4px;
+  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; text-align:center;
+}}
+.wb-left b{{ color:var(--accent); font-size:1.12rem; font-weight:800; letter-spacing:-.015em; }}
+.wb-left span{{ color:var(--ink-soft); font-size:.86rem; font-weight:600; }}
 
-.wb-meta-row{{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:10px; }}
-.wb-chip{{ font-size:.77rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.64);
-  border:1px solid var(--edge); padding:6px 12px; border-radius:999px; }}
+.wb-meta-row{{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }}
+.wb-chip{{
+  font-size:.8rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.66);
+  border:1px solid var(--edge); padding:9px 14px; border-radius:16px; text-align:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+}}
 
 .wb-milestones-strip{{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px;
 }}
 .wb-ms-badge{{
-  text-align:center; padding:7px 6px; border-radius:14px; font-size:.76rem; font-weight:800;
+  text-align:center; padding:8px 6px; border-radius:14px; font-size:.78rem; font-weight:800;
   background:rgba(255,255,255,.38); border:1px solid rgba(255,255,255,.65); color:var(--ink-soft);
 }}
 .wb-ms-badge.is-done{{
@@ -403,15 +414,15 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 
 .wb-pace-wrap{{
-  margin-top:10px; padding:10px 14px; border-radius:16px;
-  background:rgba(255,255,255,.45); border:1px solid var(--edge);
+  margin-top:12px; padding:12px 15px; border-radius:18px;
+  background:rgba(255,255,255,.48); border:1px solid var(--edge);
 }}
 .wb-pace-head{{
-  display:flex; justify-content:space-between; font-size:.75rem; font-weight:700; color:var(--ink-soft);
-  margin-bottom:6px;
+  display:flex; justify-content:space-between; font-size:.78rem; font-weight:700; color:var(--ink-soft);
+  margin-bottom:7px;
 }}
 .wb-pace-track{{
-  width:100%; height:7px; border-radius:999px; background:rgba(255,255,255,.65); overflow:hidden;
+  width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,.68); overflow:hidden;
 }}
 .wb-pace-fill{{
   height:100%; border-radius:999px;
@@ -419,8 +430,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   transition:width .7s cubic-bezier(.16,1,.3,1);
 }}
 
-.wb-msg{{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.42;
-  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge); }}
+.wb-msg{{
+  margin-top:12px; padding:14px 18px; border-radius:20px; font-weight:700; font-size:.92rem; line-height:1.48;
+  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge);
+}}
 
 /* ── boxless single big 3D red rose in center (no text, fades smoothly after 5s) ── */
 .wb-rose-only-wrap{{
@@ -499,24 +512,24 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 
 /* ── records ── */
-.wb-rec{{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:18px;
+.wb-rec{{ display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:18px;
   background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }}
-.wb-rec-ic{{ width:38px; height:38px; border-radius:13px; display:grid; place-items:center; font-size:1.1rem;
+.wb-rec-ic{{ width:40px; height:40px; border-radius:14px; display:grid; place-items:center; font-size:1.12rem;
   background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; }}
-.wb-rec-t{{ font-weight:700; font-size:.95rem; }}
-.wb-rec-s{{ color:var(--ink-soft); font-size:.78rem; font-weight:600; }}
-.wb-rec-ml{{ margin-left:auto; font-weight:800; white-space:nowrap; text-align:right; }}
-.wb-rec-ml small{{ display:block; font-size:.72rem; font-weight:700; color:var(--ink-soft); }}
-.wb-empty{{ text-align:center; color:var(--ink-soft); padding:1.4rem .5rem; font-weight:600; }}
-.wb-stat{{ text-align:center; padding:12px 8px; border-radius:18px; background:var(--glass-strong);
+.wb-rec-t{{ font-weight:700; font-size:.96rem; letter-spacing:-.01em; }}
+.wb-rec-s{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:2px; }}
+.wb-rec-ml{{ margin-left:auto; font-weight:800; font-size:.98rem; white-space:nowrap; text-align:right; }}
+.wb-rec-ml small{{ display:block; font-size:.74rem; font-weight:700; color:var(--accent); margin-top:2px; }}
+.wb-empty{{ text-align:center; color:var(--ink-soft); padding:1.5rem .6rem; font-weight:600; font-size:.92rem; }}
+.wb-stat{{ text-align:center; padding:14px 10px; border-radius:20px; background:var(--glass-strong);
   border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }}
-.wb-stat b{{ display:block; font-size:1.15rem; font-weight:800; }}
-.wb-stat span{{ display:block; font-size:.78rem; font-weight:700; color:var(--accent); margin-top:1px; }}
-.wb-stat small{{ color:var(--ink-soft); font-weight:600; font-size:.74rem; }}
-.wb-stats{{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }}
+.wb-stat b{{ display:block; font-size:1.18rem; font-weight:800; letter-spacing:-.015em; }}
+.wb-stat span{{ display:block; font-size:.82rem; font-weight:800; color:var(--accent); margin-top:3px; }}
+.wb-stat small{{ display:block; color:var(--ink-soft); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; margin-top:4px; }}
+.wb-stats{{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }}
 
 /* ── tabs as floating glass pill ── */
-[data-baseweb="tab-list"]{{ gap:4px !important; padding:5px; width:fit-content; max-width:100%; margin:0 auto 1rem;
+[data-baseweb="tab-list"]{{ gap:4px !important; padding:5px; width:fit-content; max-width:100%; margin:0 auto 1.15rem;
   border-radius:22px; background:var(--glass); border:1px solid var(--edge);
   -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); box-shadow:inset 0 1px 0 #fff,var(--shadow); }}
 [data-baseweb="tab"]{{ border-radius:17px !important; padding:9px 22px !important; height:auto !important; background:transparent !important; }}
@@ -564,27 +577,28 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 [data-testid="stNumberInput"] button{{ min-height:0 !important; box-shadow:none !important; }}
 
 /* ── responsive: quick pours 2×2 on phones, 4×1 on wider screens ── */
-.st-key-quick [data-testid="stHorizontalBlock"]{{ flex-wrap:wrap !important; gap:.6rem !important; }}
-.st-key-quick [data-testid="stColumn"]{{ flex:1 1 calc(50% - .6rem) !important; min-width:calc(50% - .6rem) !important; width:auto !important; }}
-@media (min-width:480px){{ .st-key-quick [data-testid="stColumn"]{{ flex-basis:calc(25% - .6rem) !important; min-width:calc(25% - .6rem) !important; }} }}
+.st-key-quick [data-testid="stHorizontalBlock"]{{ flex-wrap:wrap !important; gap:.65rem !important; }}
+.st-key-quick [data-testid="stColumn"]{{ flex:1 1 calc(50% - .65rem) !important; min-width:calc(50% - .65rem) !important; width:auto !important; }}
+@media (min-width:480px){{ .st-key-quick [data-testid="stColumn"]{{ flex-basis:calc(25% - .65rem) !important; min-width:calc(25% - .65rem) !important; }} }}
 
 /* record rows keep the delete button inline on every screen */
-.st-key-records [data-testid="stHorizontalBlock"]{{ flex-wrap:nowrap !important; gap:.5rem !important; align-items:center; margin-bottom:.45rem; }}
+.st-key-records [data-testid="stHorizontalBlock"]{{ flex-wrap:nowrap !important; gap:.55rem !important; align-items:center; margin-bottom:.5rem; }}
 .st-key-records [data-testid="stColumn"]{{ min-width:0 !important; }}
 .st-key-records [data-testid="stColumn"]:first-child{{ flex:1 1 auto !important; width:auto !important; }}
 .st-key-records [data-testid="stColumn"]:last-child{{ flex:0 0 50px !important; width:50px !important; }}
 
 @media (max-width:760px){{
   .wb-hero{{ flex-wrap:wrap; }} .wb-pills{{ margin-left:0; width:100%; justify-content:stretch; }} .wb-pill{{ flex:1; }}
+  .wb-meta-row{{ grid-template-columns:1fr; }}
   [data-baseweb="tab"]{{ padding:8px 16px !important; }}
 }}
 @media (max-height:520px) and (orientation:landscape){{
   .wb-ring{{ width:min(100%,200px); }} .wb-hero{{ padding:12px 16px; }} .wb-tag{{ display:none; }}
 }}
-@media (min-width:761px) and (max-width:1024px){{ .wb-pill{{ min-width:84px; }} }}
+@media (min-width:761px) and (max-width:1024px){{ .wb-pill{{ min-width:92px; }} }}
 
 @media (prefers-reduced-motion:reduce){{
-  .stApp::before,.stApp::after,.wb-orb,.wb-w1,.wb-w2,.wb-bub1,.wb-bub2,.wb-bub3,.wb-bub4,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
+  .stApp::before,.stApp::after,.wb-orb,.wb-w1,.wb-w2,.wb-drop-a,.wb-drop-b,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
   .wb-arc,.wb-lvl,.wb-pace-fill,.stApp [data-testid^="stBaseButton"]{{ transition:none !important; }}
 }}
 </style>
@@ -924,6 +938,7 @@ def ring_svg(progress: float) -> str:
         "M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 "
         "T400 10 V220 H0 Z"
     )
+    droplet_path = "M0 -6.5 C4.2 -1.2 6.2 1.8 6.2 4.4 C6.2 7.8 3.4 10.2 0 10.2 C-3.4 10.2 -6.2 7.8 -6.2 4.4 C-6.2 1.8 -4.2 -1.2 0 -6.5 Z"
     return f"""
     <svg viewBox="0 0 200 200" role="img" aria-label="{int(progress*100)} percent of daily goal">
       <defs>
@@ -941,10 +956,8 @@ def ring_svg(progress: float) -> str:
         <g class="wb-lvl" style="transform:translateY({level:.1f}px)">
           <path class="wb-w2" d="{wave}" fill="#b8aff9" fill-opacity=".55" transform="translate(-50 -4)"/>
           <path class="wb-w1" d="{wave}" fill="url(#wbWater)"/>
-          <circle class="wb-bub1" cx="76" cy="44" r="2.6" fill="#ffffff" opacity=".7"/>
-          <circle class="wb-bub2" cx="104" cy="54" r="2.1" fill="#ffffff" opacity=".65"/>
-          <circle class="wb-bub3" cx="122" cy="48" r="3.0" fill="#ffffff" opacity=".6"/>
-          <circle class="wb-bub4" cx="89" cy="60" r="1.8" fill="#ffffff" opacity=".75"/>
+          <path class="wb-drop-a" d="{droplet_path}" transform="translate(66, 48)" fill="#ffffff" fill-opacity=".78"/>
+          <path class="wb-drop-b" d="{droplet_path}" transform="translate(132, 54)" fill="#ffffff" fill-opacity=".72"/>
         </g>
       </g>
       <circle class="wb-track" cx="100" cy="100" r="{RING_R}"/>
@@ -1004,9 +1017,9 @@ html(
         <div class="wb-tag">A little water. A brighter day.</div>
       </div>
       <div class="wb-pills">
-        <div class="wb-pill"><b>{goal:,} ml · {fmt_liters(goal)}</b><small>Daily goal</small></div>
-        <div class="wb-pill"><b>{len(entries)}</b><small>Drinks logged</small></div>
-        <div class="wb-pill"><b>{pace_label}</b><small>Daytime pace</small></div>
+        <div class="wb-pill"><b>{goal:,} ml</b><span>{fmt_liters(goal)}</span><small>Daily goal</small></div>
+        <div class="wb-pill"><b>{len(entries)}</b><span>{glasses_label} glasses</span><small>Logged today</small></div>
+        <div class="wb-pill"><b>{pace_label}</b><span>~{expected_pct}% guide</span><small>Daytime pace</small></div>
       </div>
     </div>
     """
@@ -1031,21 +1044,24 @@ with tab_home:
                 f"""
                 <div class="wb-ring">{ring_svg(progress)}
                   <div class="wb-ring-text">
-                    <div class="wb-big">{total:,}<small> ml</small></div>
+                    <div class="wb-big">{total:,}<small>ml</small></div>
                     <div class="wb-liters">{fmt_liters(total)}</div>
-                    <div class="wb-of">of {goal:,} ml ({fmt_liters(goal)}) · {int(round(percent))}%</div>
+                    <div class="wb-of">{int(round(percent))}% of {goal:,} ml ({fmt_liters(goal)})</div>
                   </div>
                 </div>
-                <div class="wb-left"><b>{remaining:,} ml ({fmt_liters(remaining)})</b><span>left to reach your daily goal</span></div>
+                <div class="wb-left">
+                  <b>{remaining:,} ml · {fmt_liters(remaining)}</b>
+                  <span>remaining toward your daily target</span>
+                </div>
                 <div class="wb-meta-row">
                   <span class="wb-chip">🥤 {glasses_label} glasses today</span>
-                  <span class="wb-chip">🫙 Bottle: {bottle_ml:,} ml ({fmt_liters(bottle_ml)})</span>
+                  <span class="wb-chip">🫙 Bottle · {bottle_ml:,} ml ({fmt_liters(bottle_ml)})</span>
                 </div>
                 <div class="wb-milestones-strip">{ms_badges_html}</div>
                 <div class="wb-pace-wrap">
                   <div class="wb-pace-head">
-                    <span>You: {int(round(percent))}%</span>
-                    <span>Daytime guide: ~{expected_pct}%</span>
+                    <span>Your intake · {int(round(percent))}%</span>
+                    <span>Daytime guide · ~{expected_pct}%</span>
                   </div>
                   <div class="wb-pace-track">
                     <div class="wb-pace-fill" style="width:{pace_bar_pct}%"></div>
@@ -1074,7 +1090,7 @@ with tab_home:
             with st.container(key="quick"):
                 for col, amount in zip(st.columns(len(QUICK_POURS)), QUICK_POURS):
                     col.button(
-                        f"+{amount} ml ({fmt_liters(amount)})",
+                        f"+{amount} ml\n{fmt_liters(amount)}",
                         key=f"quick_{amount}",
                         use_container_width=True,
                         on_click=add_water,
@@ -1082,7 +1098,7 @@ with tab_home:
                     )
             b_col1, b_col2 = st.columns(2)
             b_col1.button(
-                f"🫙 +Bottle ({bottle_ml:,} ml · {fmt_liters(bottle_ml)})",
+                f"🫙 +Bottle · {bottle_ml:,} ml ({fmt_liters(bottle_ml)})",
                 key="add_bottle_btn",
                 use_container_width=True,
                 on_click=add_water,
@@ -1107,7 +1123,7 @@ with tab_home:
             html('<div class="wb-h">Latest drinks</div>')
             if entries:
                 html(
-                    "<div style='display:grid;gap:8px;margin-top:8px'>"
+                    "<div style='display:grid;gap:10px;margin-top:10px'>"
                     + "".join(record_row(e) for e in reversed(entries[-3:]))
                     + "</div>"
                 )
@@ -1123,9 +1139,9 @@ with tab_records:
         html(
             f"""
             <div class="wb-stats">
-              <div class="wb-stat"><b>{total:,} ml</b><span>{fmt_liters(total)}</span><small>Total</small></div>
-              <div class="wb-stat"><b>{average:,} ml</b><span>{fmt_liters(average)}</span><small>Average</small></div>
-              <div class="wb-stat"><b>{largest:,} ml</b><span>{fmt_liters(largest)}</span><small>Largest</small></div>
+              <div class="wb-stat"><b>{total:,} ml</b><span>{fmt_liters(total)}</span><small>Total intake</small></div>
+              <div class="wb-stat"><b>{average:,} ml</b><span>{fmt_liters(average)}</span><small>Average pour</small></div>
+              <div class="wb-stat"><b>{largest:,} ml</b><span>{fmt_liters(largest)}</span><small>Largest pour</small></div>
             </div>
             """
         )
