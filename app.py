@@ -34,6 +34,7 @@ QUICK_POURS = (150, 250, 350, 500)
 MILESTONES = (25, 50, 75, 100)
 MOMENT_TAGS = ("Sip", "Morning", "Study", "Workout")
 THEME_MODES = ("Auto (IST Time)", "Morning Glow", "Aqua Daylight", "Twilight Indigo")
+PATTERN_MODES = ("Soft Bokeh", "Minimal Dots", "Aqua Caustics")
 CELEBRATION_SOUNDS = (
     "Water + Voice",
     "Soft Harp Arpeggio",
@@ -50,6 +51,7 @@ DEFAULTS = {
     "celebration_style": "Water + Voice",
     "ambient_rain": False,
     "theme_mode": "Auto (IST Time)",
+    "pattern_mode": "Soft Bokeh",
     "entries": [],  # list of {"ml": int, "time": "03:00 PM", "tag": "Study"}
     "typed_amount": 0,
     "show_reset_confirm": False,
@@ -175,9 +177,10 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
     if mode == "Morning Glow":
         return {
             "name": "Morning Glow",
-            "bg": "linear-gradient(155deg,#fde2e4 0%,#e2ece9 48%,#dfe7fd 100%)",
+            "bg": "linear-gradient(155deg,#fde2e4 0%,#e8eef5 48%,#dfe7fd 100%)",
             "orb1": "#ffafcc",
             "orb2": "#90e0ef",
+            "orb3": "#ffd6a5",
             "ink": "#281e45",
             "ink_soft": "#655887",
             "accent": "#7b2cbf",
@@ -192,6 +195,7 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "bg": "linear-gradient(155deg,#cfd9f7 0%,#d8ccf7 50%,#bdd8f2 100%)",
             "orb1": "#7b6cf6",
             "orb2": "#38bdf8",
+            "orb3": "#a78bfa",
             "ink": "#1c1947",
             "ink_soft": "#4e4b82",
             "accent": "#5b46e8",
@@ -205,6 +209,7 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
         "bg": "linear-gradient(155deg,#c3e3f2 0%,#dcd5fa 52%,#c5dcf4 100%)",
         "orb1": "#9e90ff",
         "orb2": "#6ec4ea",
+        "orb3": "#90e0ef",
         "ink": "#222052",
         "ink_soft": "#5b5b8e",
         "accent": "#6c5ce7",
@@ -215,7 +220,29 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
     }
 
 
+def resolve_pattern_css(pattern_mode: str) -> str:
+    if pattern_mode == "Minimal Dots":
+        return """
+        background-image: radial-gradient(rgba(255,255,255,.55) 1.25px, transparent 1.25px);
+        background-size: 24px 24px;
+        """
+    if pattern_mode == "Aqua Caustics":
+        return """
+        background-image:
+          radial-gradient(ellipse at 20% 25%, rgba(255,255,255,.35) 0%, transparent 45%),
+          radial-gradient(ellipse at 78% 65%, rgba(255,255,255,.28) 0%, transparent 50%),
+          repeating-linear-gradient(125deg, rgba(255,255,255,.09) 0px, rgba(255,255,255,.09) 2px, transparent 2px, transparent 36px);
+        """
+    return """
+    background-image:
+      radial-gradient(circle at 18% 22%, rgba(255,255,255,.32) 0%, transparent 32%),
+      radial-gradient(circle at 84% 18%, rgba(255,255,255,.26) 0%, transparent 28%),
+      radial-gradient(circle at 65% 82%, rgba(255,255,255,.24) 0%, transparent 34%);
+    """
+
+
 T = resolve_theme_tokens(st.session_state.theme_mode, hour)
+PATTERN_CSS = resolve_pattern_css(st.session_state.pattern_mode)
 
 # ───────────────────────── Styling ─────────────────────────
 CSS = f"""
@@ -223,18 +250,22 @@ CSS = f"""
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root{{
-  --ink:{T['ink']}; --ink-soft:{T['ink_soft']}; --accent:{T['accent']}; --accent-2:{T['accent2']};
+  --ink:{T['ink']}; --ink-soft:{T['ink_soft']}; --accent:{T['accent']}; --accent-2:{T['accent-2'] if 'accent-2' in T else T['accent2']};
   --glass:{T['glass']}; --glass-strong:{T['glass_strong']};
   --edge:{T['edge']};
   --shadow:0 18px 44px rgba(78,66,164,.14);
   color-scheme: light;
 }}
 
-/* ── base + animated liquid backdrop ── */
+/* ── base + layered atmospheric backdrop ── */
 html, body, .stApp, [data-testid="stAppViewContainer"]{{
   color-scheme: light !important; color: var(--ink);
   background: {T['bg']} fixed !important;
   transition: background .8s ease;
+}}
+[data-testid="stAppViewContainer"] > .main::before{{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  {PATTERN_CSS}
 }}
 .stApp, .stApp p, .stApp label, .stApp button, .stApp input, .stApp div,
 .stApp h1, .stApp h2, .stApp h3, .stApp h4{{
@@ -249,6 +280,25 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .stApp::after{{ width:42vmax; height:42vmax; right:-12vmax; bottom:-14vmax;
   background:radial-gradient(circle,{T['orb2']} 0%,transparent 68%); animation:drift 26s ease-in-out infinite alternate-reverse; }}
 @keyframes drift{{ to{{ transform:translate(6vmax,4vmax) scale(1.08); }} }}
+
+/* soft floating bokeh orbs in background */
+.wb-bg-orbs{{
+  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+}}
+.wb-orb{{
+  position:absolute; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.65), rgba(255,255,255,.06) 72%);
+  border:1px solid rgba(255,255,255,.35);
+  animation:orbFloat 18s ease-in-out infinite alternate;
+}}
+.wb-o1{{ width:140px; height:140px; top:14%; left:10%; animation-duration:19s; }}
+.wb-o2{{ width:96px; height:96px; top:58%; left:6%; animation-duration:23s; animation-delay:-4s; }}
+.wb-o3{{ width:165px; height:165px; top:24%; right:8%; animation-duration:25s; animation-delay:-8s; }}
+.wb-o4{{ width:110px; height:110px; bottom:12%; right:18%; animation-duration:21s; animation-delay:-2s; }}
+@keyframes orbFloat{{
+  0%{{ transform:translate(0, 0) scale(1); }}
+  100%{{ transform:translate(24px, -28px) scale(1.08); }}
+}}
 
 [data-testid="stHeader"]{{ background:transparent !important; }}
 #MainMenu, footer, [data-testid="stDecoration"]{{ display:none !important; }}
@@ -350,6 +400,23 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   background:linear-gradient(135deg,rgba(108,92,231,.22),rgba(111,195,232,.28));
   border-color:rgba(255,255,255,.95); color:var(--ink);
   box-shadow:inset 0 1px 0 #fff;
+}}
+
+.wb-pace-wrap{{
+  margin-top:10px; padding:10px 14px; border-radius:16px;
+  background:rgba(255,255,255,.45); border:1px solid var(--edge);
+}}
+.wb-pace-head{{
+  display:flex; justify-content:space-between; font-size:.75rem; font-weight:700; color:var(--ink-soft);
+  margin-bottom:6px;
+}}
+.wb-pace-track{{
+  width:100%; height:7px; border-radius:999px; background:rgba(255,255,255,.65); overflow:hidden;
+}}
+.wb-pace-fill{{
+  height:100%; border-radius:999px;
+  background:linear-gradient(90deg, var(--accent), #5bb8e6);
+  transition:width .7s cubic-bezier(.16,1,.3,1);
 }}
 
 .wb-msg{{ margin-top:10px; padding:13px 16px; border-radius:18px; font-weight:700; line-height:1.42;
@@ -517,12 +584,23 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 @media (min-width:761px) and (max-width:1024px){{ .wb-pill{{ min-width:84px; }} }}
 
 @media (prefers-reduced-motion:reduce){{
-  .stApp::before,.stApp::after,.wb-w1,.wb-w2,.wb-bub1,.wb-bub2,.wb-bub3,.wb-bub4,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
-  .wb-arc,.wb-lvl,.stApp [data-testid^="stBaseButton"]{{ transition:none !important; }}
+  .stApp::before,.stApp::after,.wb-orb,.wb-w1,.wb-w2,.wb-bub1,.wb-bub2,.wb-bub3,.wb-bub4,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
+  .wb-arc,.wb-lvl,.wb-pace-fill,.stApp [data-testid^="stBaseButton"]{{ transition:none !important; }}
 }}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="wb-bg-orbs" aria-hidden="true">
+      <div class="wb-orb wb-o1"></div>
+      <div class="wb-orb wb-o2"></div>
+      <div class="wb-orb wb-o3"></div>
+      <div class="wb-orb wb-o4"></div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ───────────────────────── Helpers ─────────────────────────
@@ -547,15 +625,15 @@ def feedback(percent: float) -> str:
     return "Every glass counts — steady sips keep focus and energy smooth. 💙"
 
 
-def pace_status(now_dt: datetime, current_pct: float) -> str:
+def pace_metrics(now_dt: datetime, current_pct: float) -> tuple[str, int]:
     """Gentle daytime pace estimate across waking hours (7 AM to 10 PM)."""
     minutes_since_wake = max(0, min(15 * 60, (now_dt.hour * 60 + now_dt.minute) - 7 * 60))
-    expected_pct = (minutes_since_wake / (15 * 60)) * 100
+    expected_pct = round((minutes_since_wake / (15 * 60)) * 100)
     if current_pct >= 100:
-        return "✨ Goal complete"
+        return "✨ Goal complete", expected_pct
     if current_pct + 8 >= expected_pct:
-        return "🌿 On pace"
-    return "💧 Gentle catch-up"
+        return "🌿 On pace", expected_pct
+    return "💧 Gentle catch-up", expected_pct
 
 
 def audio_and_fx_engine(
@@ -574,7 +652,6 @@ def audio_and_fx_engine(
           const parentDoc = window.parent.document;
           const parentWin = window.parent;
 
-          // 1) Interactive specular glare on liquid glass cards
           if (!parentWin.__wbGlareBound) {{
             parentWin.__wbGlareBound = true;
             parentDoc.addEventListener("pointermove", (e) => {{
@@ -595,7 +672,6 @@ def audio_and_fx_engine(
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
           if (!AudioCtx) return;
 
-          // 2) Ambient Rain Focus Mode (persistent across reruns on parent window)
           const wantRain = {str(ambient_rain).lower()};
           if (wantRain && !parentWin.__wbRainNode) {{
             try {{
@@ -641,7 +717,6 @@ def audio_and_fx_engine(
             parentWin.__wbRainNode = null;
           }}
 
-          // 3) Pitch-rising water pour sound on every log
           const pourId = {pour_id};
           const prog = {pour_progress:.3f};
           if (pourId > 0 && parentWin.__wbLastPourId !== pourId) {{
@@ -650,7 +725,7 @@ def audio_and_fx_engine(
               const ctx = new AudioCtx();
               if (ctx.state === "suspended") ctx.resume();
               const now = ctx.currentTime;
-              const baseFreq = 280 + prog * 340; // rises with ring fullness
+              const baseFreq = 280 + prog * 340;
 
               [0, 0.09].forEach((offset, idx) => {{
                 const osc = ctx.createOscillator();
@@ -672,7 +747,6 @@ def audio_and_fx_engine(
             }} catch (e) {{}}
           }}
 
-          // 4) Milestone celebration audio
           const msId = {milestone_id};
           const style = "{celebration_style}";
           if (msId > 0 && parentWin.__wbLastMsId !== msId) {{
@@ -682,7 +756,6 @@ def audio_and_fx_engine(
               if (ctx.state === "suspended") ctx.resume();
               const now = ctx.currentTime;
 
-              // Water splash burst first
               const dur = 0.52;
               const bufLen = Math.floor(ctx.sampleRate * dur);
               const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
@@ -818,22 +891,18 @@ def single_rose_and_falling_stars_html() -> str:
           </linearGradient>
         </defs>
 
-        <!-- stem & lush 3D leaves -->
         <path d="M75 90 Q72 118 75 142" stroke="url(#roseStemGrad)" stroke-width="7" stroke-linecap="round" fill="none"/>
         <path d="M75 116 C52 102 36 108 40 124 C52 132 66 125 75 118 Z" fill="url(#roseLeafGrad)" stroke="#d8f3dc" stroke-width="1.1"/>
         <path d="M75 108 C98 94 114 100 110 116 C98 124 84 117 75 110 Z" fill="url(#roseLeafGrad)" stroke="#d8f3dc" stroke-width="1.1"/>
 
-        <!-- back & side 3D petals -->
         <path d="M75 94 C38 94 20 66 30 38 C38 18 58 20 75 30 C92 20 112 18 120 38 C130 66 112 94 75 94 Z"
               fill="url(#roseDeep)" stroke="#ffccd5" stroke-width="1.3"/>
         <path d="M31 44 C24 66 42 90 75 94 C54 80 46 60 31 44 Z" fill="#590d22" opacity=".55"/>
         <path d="M119 44 C126 66 108 90 75 94 C96 80 104 60 119 44 Z" fill="#4a0414" opacity=".6"/>
 
-        <!-- sculpted mid petals -->
         <path d="M75 88 C48 88 38 64 47 43 C54 28 66 32 75 39 C84 32 96 28 103 43 C112 64 102 88 75 88 Z"
               fill="url(#roseVelvet)" stroke="#ffb3c1" stroke-width="1.2"/>
 
-        <!-- inner rosebud swirl -->
         <path d="M75 78 C58 78 53 58 60 45 C66 35 84 35 90 45 C97 58 92 78 75 78 Z"
               fill="#ff4d6d" stroke="#ffe5ec" stroke-width="1.2"/>
         <path d="M64 49 C68 42 82 42 86 49 C89 58 83 68 75 68 C67 68 61 58 64 49 Z"
@@ -841,7 +910,6 @@ def single_rose_and_falling_stars_html() -> str:
         <path d="M67 48 C70 44 79 45 81 51 C82 57 77 62 73 60"
               stroke="#ffb3c1" stroke-width="2" stroke-linecap="round" fill="none"/>
 
-        <!-- soft dew / 3D light highlights -->
         <ellipse cx="48" cy="40" rx="6.5" ry="12" transform="rotate(-24 48 40)" fill="#ffffff" opacity=".36"/>
         <circle cx="96" cy="46" r="3" fill="#ffffff" opacity=".45"/>
       </svg>
@@ -906,7 +974,7 @@ avatar = AGE_AVATAR[st.session_state.age_group]
 active_milestone = st.session_state.active_flower_milestone
 glasses_250 = total / 250
 glasses_label = f"{glasses_250:.1f}".rstrip("0").rstrip(".")
-pace_label = pace_status(now_ist, percent)
+pace_label, expected_pct = pace_metrics(now_ist, percent)
 
 audio_and_fx_engine(
     pour_id=st.session_state.pour_sound_id if st.session_state.sound_enabled else 0,
@@ -958,6 +1026,7 @@ with tab_home:
                 f'{"🌹 " if percent >= m else ""}{m}%</div>'
                 for m in MILESTONES
             )
+            pace_bar_pct = min(100, max(0, int(round(percent))))
             html(
                 f"""
                 <div class="wb-ring">{ring_svg(progress)}
@@ -973,6 +1042,15 @@ with tab_home:
                   <span class="wb-chip">🫙 Bottle: {bottle_ml:,} ml ({fmt_liters(bottle_ml)})</span>
                 </div>
                 <div class="wb-milestones-strip">{ms_badges_html}</div>
+                <div class="wb-pace-wrap">
+                  <div class="wb-pace-head">
+                    <span>You: {int(round(percent))}%</span>
+                    <span>Daytime guide: ~{expected_pct}%</span>
+                  </div>
+                  <div class="wb-pace-track">
+                    <div class="wb-pace-fill" style="width:{pace_bar_pct}%"></div>
+                  </div>
+                </div>
                 <div class="wb-msg">{feedback(percent)}</div>
                 """
             )
@@ -1095,7 +1173,7 @@ with tab_settings:
             key="daily_goal",
             on_change=_sync_milestones,
         )
-        s3, s4 = st.columns(2, gap="medium")
+        s3, s4, s5 = st.columns(3, gap="medium")
         s3.number_input(
             "Favorite bottle size (ml)",
             min_value=100,
@@ -1104,10 +1182,11 @@ with tab_settings:
             key="bottle_ml",
         )
         s4.selectbox("Backdrop theme", list(THEME_MODES), key="theme_mode")
+        s5.selectbox("Backdrop pattern", list(PATTERN_MODES), key="pattern_mode")
 
-        s5, s6, s7 = st.columns([1.4, 1, 1], gap="medium", vertical_alignment="center")
-        s5.selectbox("Milestone sound style", list(CELEBRATION_SOUNDS), key="celebration_style")
-        s6.toggle("Sound effects", key="sound_enabled")
-        s7.toggle("🌧️ Ambient rain", key="ambient_rain")
+        s6, s7, s8 = st.columns([1.4, 1, 1], gap="medium", vertical_alignment="center")
+        s6.selectbox("Milestone sound style", list(CELEBRATION_SOUNDS), key="celebration_style")
+        s7.toggle("Sound effects", key="sound_enabled")
+        s8.toggle("🌧️ Ambient rain", key="ambient_rain")
 
 st.caption("Your progress stays in this browser session and is not sent to an account.")
