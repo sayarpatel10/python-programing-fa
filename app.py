@@ -184,9 +184,9 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "ink_soft": "#655887",
             "accent": "#7b2cbf",
             "accent2": "#e07a5f",
-            "glass": "rgba(255,255,255,.44)",
-            "glass_strong": "rgba(255,255,255,.68)",
-            "edge": "rgba(255,255,255,.84)",
+            "glass": "rgba(255,255,255,.46)",
+            "glass_strong": "rgba(255,255,255,.72)",
+            "edge": "rgba(255,255,255,.86)",
         }
     if mode == "Twilight Indigo":
         return {
@@ -198,9 +198,9 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "ink_soft": "#4e4b82",
             "accent": "#5b46e8",
             "accent2": "#38a3d1",
-            "glass": "rgba(255,255,255,.42)",
-            "glass_strong": "rgba(255,255,255,.66)",
-            "edge": "rgba(255,255,255,.82)",
+            "glass": "rgba(255,255,255,.44)",
+            "glass_strong": "rgba(255,255,255,.70)",
+            "edge": "rgba(255,255,255,.84)",
         }
     return {
         "name": "Aqua Daylight",
@@ -211,9 +211,9 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
         "ink_soft": "#5b5b8e",
         "accent": "#6c5ce7",
         "accent2": "#8d7ff5",
-        "glass": "rgba(255,255,255,.38)",
-        "glass_strong": "rgba(255,255,255,.62)",
-        "edge": "rgba(255,255,255,.78)",
+        "glass": "rgba(255,255,255,.42)",
+        "glass_strong": "rgba(255,255,255,.68)",
+        "edge": "rgba(255,255,255,.82)",
     }
 
 
@@ -250,7 +250,7 @@ CSS = f"""
   --ink:{T['ink']}; --ink-soft:{T['ink_soft']}; --accent:{T['accent']}; --accent-2:{T['accent2']};
   --glass:{T['glass']}; --glass-strong:{T['glass_strong']};
   --edge:{T['edge']};
-  --shadow:0 18px 44px rgba(78,66,164,.14);
+  --shadow:0 20px 46px rgba(78,66,164,.15);
   color-scheme: light;
 }}
 
@@ -284,8 +284,8 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 .wb-orb{{
   position:absolute; border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.65), rgba(255,255,255,.06) 72%);
-  border:1px solid rgba(255,255,255,.35);
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.68), rgba(255,255,255,.06) 72%);
+  border:1px solid rgba(255,255,255,.38);
   animation:orbFloat 18s ease-in-out infinite alternate;
 }}
 .wb-o1{{ width:140px; height:140px; top:14%; left:10%; animation-duration:19s; }}
@@ -308,15 +308,15 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .wb-glass, [data-testid="stVerticalBlockBorderWrapper"]{{
   --mx: 18%; --my: 0%;
   position:relative; overflow:hidden;
-  background:linear-gradient(135deg,rgba(255,255,255,.62),rgba(255,255,255,.28)) !important;
-  -webkit-backdrop-filter:blur(26px) saturate(175%); backdrop-filter:blur(26px) saturate(175%);
+  background:linear-gradient(140deg,rgba(255,255,255,.66),rgba(255,255,255,.30)) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(180%); backdrop-filter:blur(28px) saturate(180%);
   border:1px solid var(--edge) !important; border-radius:28px !important;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.28), var(--shadow);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.98), inset 0 -1.5px 0 rgba(255,255,255,.32), var(--shadow);
   transition:transform .28s cubic-bezier(.16,1,.3,1), box-shadow .28s ease;
 }}
 .wb-glass::before, [data-testid="stVerticalBlockBorderWrapper"]::before{{
   content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
-  background:radial-gradient(420px circle at var(--mx) var(--my), rgba(255,255,255,.55), transparent 62%);
+  background:radial-gradient(420px circle at var(--mx) var(--my), rgba(255,255,255,.58), transparent 62%);
 }}
 [data-testid="stVerticalBlockBorderWrapper"] > div{{ position:relative; }}
 [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlockBorderWrapper"]{{
@@ -328,6 +328,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .wb-avatar{{ flex:0 0 auto; width:clamp(58px,9vw,76px); aspect-ratio:1; display:grid; place-items:center;
   font-size:clamp(28px,5vw,38px); border-radius:50%;
   background:linear-gradient(145deg,#ffffff,#e6e0fc);
+  border:1.5px solid rgba(255,255,255,.95);
   box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 10px 22px rgba(108,92,231,.24); }}
 .wb-hello{{ color:var(--ink-soft); font-size:.86rem; font-weight:600; letter-spacing:.02em; }}
 .wb-brand{{
@@ -337,10 +338,15 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 .wb-tag{{ color:var(--ink-soft); font-size:.92rem; margin-top:5px; font-weight:500; letter-spacing:.005em; }}
 .wb-pills{{ margin-left:auto; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }}
-.wb-pill{{ padding:11px 16px; border-radius:20px; background:var(--glass-strong); border:1px solid var(--edge);
-  text-align:center; min-width:124px; box-shadow:inset 0 1px 0 #fff; }}
-.wb-pill b{{ display:block; font-size:1.03rem; font-weight:800; letter-spacing:-.01em; line-height:1.25; }}
-.wb-pill small{{ display:block; color:var(--ink-soft); font-size:.72rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; margin-top:3px; }}
+.wb-pill{{
+  padding:12px 18px; border-radius:22px; background:var(--glass-strong);
+  border:1px solid rgba(255,255,255,.92);
+  text-align:center; min-width:132px;
+  box-shadow:inset 0 1.5px 0 #fff, inset 0 -1px 0 rgba(108,92,231,.08), 0 8px 18px rgba(78,66,164,.08);
+}}
+.wb-pill b{{ display:block; font-size:1.06rem; font-weight:800; letter-spacing:-.015em; line-height:1.2; }}
+.wb-pill span{{ display:block; font-size:.8rem; font-weight:800; color:var(--accent); margin-top:3px; }}
+.wb-pill small{{ display:block; color:var(--ink-soft); font-size:.69rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-top:5px; }}
 
 /* ── section titles ── */
 .wb-h{{
@@ -349,10 +355,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 .wb-sub{{ color:var(--ink-soft); font-size:.9rem; line-height:1.45; margin-bottom:.85rem; }}
 
-/* ── progress ring with liquid wave + two rising water droplets ── */
+/* ── progress ring with liquid wave, meniscus highlight & two water droplets ── */
 .wb-ring{{ position:relative; width:min(100%,292px); margin:.45rem auto .75rem; aspect-ratio:1; }}
 .wb-ring svg{{ width:100%; height:100%; display:block; overflow:visible; }}
-.wb-track{{ fill:none; stroke:rgba(255,255,255,.72); stroke-width:12; }}
+.wb-track{{ fill:none; stroke:rgba(255,255,255,.78); stroke-width:12; }}
 .wb-arc{{ fill:none; stroke:url(#wbArc); stroke-width:12; stroke-linecap:round;
   transition:stroke-dasharray .9s cubic-bezier(.16,1,.3,1); filter:drop-shadow(0 4px 8px rgba(108,92,231,.32)); }}
 .wb-lvl{{ transition:transform 1s cubic-bezier(.16,1,.3,1); }}
@@ -377,27 +383,29 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 
 .wb-ring-text{{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; pointer-events:none; padding:0 18px; }}
 .wb-big{{ font-size:clamp(1.75rem,5.5vw,2.35rem); font-weight:800; letter-spacing:-.03em; line-height:1.05; }}
-.wb-big small{{ font-size:.48em; font-weight:700; color:var(--ink-soft); margin-left:2px; }}
+.wb-big small{{ font-size:.48em; font-weight:700; color:var(--ink-soft); margin-left:3px; }}
 .wb-liters{{
-  display:inline-block; font-size:.92rem; font-weight:800; color:var(--accent);
-  background:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.9);
-  padding:2px 10px; border-radius:999px; margin-top:6px; letter-spacing:.01em;
+  display:inline-block; font-size:.9rem; font-weight:800; color:var(--accent);
+  background:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.95);
+  padding:3px 12px; border-radius:999px; margin-top:7px; letter-spacing:.01em;
+  box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(78,66,164,.08);
 }}
-.wb-of{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:7px; line-height:1.35; }}
+.wb-of{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:8px; line-height:1.35; }}
 
 .wb-left{{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-  padding:14px 18px; border-radius:20px; margin-top:4px;
-  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; text-align:center;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  padding:15px 18px; border-radius:20px; margin-top:4px;
+  background:var(--glass-strong); border:1px solid rgba(255,255,255,.92);
+  box-shadow:inset 0 1.5px 0 #fff, inset 0 -1px 0 rgba(108,92,231,.08); text-align:center;
 }}
 .wb-left b{{ color:var(--accent); font-size:1.12rem; font-weight:800; letter-spacing:-.015em; }}
 .wb-left span{{ color:var(--ink-soft); font-size:.86rem; font-weight:600; }}
 
 .wb-meta-row{{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }}
 .wb-chip{{
-  font-size:.8rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.66);
-  border:1px solid var(--edge); padding:9px 14px; border-radius:16px; text-align:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+  font-size:.8rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.72);
+  border:1px solid rgba(255,255,255,.92); padding:10px 14px; border-radius:16px; text-align:center;
+  box-shadow:inset 0 1.5px 0 #fff, 0 4px 10px rgba(78,66,164,.06);
 }}
 
 .wb-milestones-strip{{
@@ -405,24 +413,27 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 .wb-ms-badge{{
   text-align:center; padding:8px 6px; border-radius:14px; font-size:.78rem; font-weight:800;
-  background:rgba(255,255,255,.38); border:1px solid rgba(255,255,255,.65); color:var(--ink-soft);
+  background:rgba(255,255,255,.42); border:1px solid rgba(255,255,255,.72); color:var(--ink-soft);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
 }}
 .wb-ms-badge.is-done{{
-  background:linear-gradient(135deg,rgba(108,92,231,.22),rgba(111,195,232,.28));
-  border-color:rgba(255,255,255,.95); color:var(--ink);
-  box-shadow:inset 0 1px 0 #fff;
+  background:linear-gradient(135deg,rgba(108,92,231,.24),rgba(111,195,232,.30));
+  border-color:rgba(255,255,255,.98); color:var(--ink);
+  box-shadow:inset 0 1.5px 0 #fff, 0 4px 10px rgba(108,92,231,.12);
 }}
 
 .wb-pace-wrap{{
   margin-top:12px; padding:12px 15px; border-radius:18px;
-  background:rgba(255,255,255,.48); border:1px solid var(--edge);
+  background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.88);
+  box-shadow:inset 0 1px 0 #fff;
 }}
 .wb-pace-head{{
   display:flex; justify-content:space-between; font-size:.78rem; font-weight:700; color:var(--ink-soft);
   margin-bottom:7px;
 }}
 .wb-pace-track{{
-  width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,.68); overflow:hidden;
+  width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,.75); overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(78,66,164,.12);
 }}
 .wb-pace-fill{{
   height:100%; border-radius:999px;
@@ -432,7 +443,8 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 
 .wb-msg{{
   margin-top:12px; padding:14px 18px; border-radius:20px; font-weight:700; font-size:.92rem; line-height:1.48;
-  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2)); border:1px solid var(--edge);
+  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2));
+  border:1px solid rgba(255,255,255,.88); box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
 }}
 
 /* ── boxless single big 3D red rose in center (no text, fades smoothly after 5s) ── */
@@ -513,16 +525,17 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 
 /* ── records ── */
 .wb-rec{{ display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:18px;
-  background:var(--glass-strong); border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }}
+  background:var(--glass-strong); border:1px solid rgba(255,255,255,.92);
+  box-shadow:inset 0 1.5px 0 #fff, 0 4px 12px rgba(78,66,164,.06); }}
 .wb-rec-ic{{ width:40px; height:40px; border-radius:14px; display:grid; place-items:center; font-size:1.12rem;
-  background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; }}
+  background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; border:1px solid rgba(255,255,255,.9); }}
 .wb-rec-t{{ font-weight:700; font-size:.96rem; letter-spacing:-.01em; }}
 .wb-rec-s{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:2px; }}
 .wb-rec-ml{{ margin-left:auto; font-weight:800; font-size:.98rem; white-space:nowrap; text-align:right; }}
 .wb-rec-ml small{{ display:block; font-size:.74rem; font-weight:700; color:var(--accent); margin-top:2px; }}
 .wb-empty{{ text-align:center; color:var(--ink-soft); padding:1.5rem .6rem; font-weight:600; font-size:.92rem; }}
 .wb-stat{{ text-align:center; padding:14px 10px; border-radius:20px; background:var(--glass-strong);
-  border:1px solid var(--edge); box-shadow:inset 0 1px 0 #fff; }}
+  border:1px solid rgba(255,255,255,.92); box-shadow:inset 0 1.5px 0 #fff, 0 6px 14px rgba(78,66,164,.06); }}
 .wb-stat b{{ display:block; font-size:1.18rem; font-weight:800; letter-spacing:-.015em; }}
 .wb-stat span{{ display:block; font-size:.82rem; font-weight:800; color:var(--accent); margin-top:3px; }}
 .wb-stat small{{ display:block; color:var(--ink-soft); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; margin-top:4px; }}
@@ -530,8 +543,8 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 
 /* ── tabs as floating glass pill ── */
 [data-baseweb="tab-list"]{{ gap:4px !important; padding:5px; width:fit-content; max-width:100%; margin:0 auto 1.15rem;
-  border-radius:22px; background:var(--glass); border:1px solid var(--edge);
-  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); box-shadow:inset 0 1px 0 #fff,var(--shadow); }}
+  border-radius:22px; background:var(--glass); border:1px solid rgba(255,255,255,.9);
+  -webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px); box-shadow:inset 0 1.5px 0 #fff,var(--shadow); }}
 [data-baseweb="tab"]{{ border-radius:17px !important; padding:9px 22px !important; height:auto !important; background:transparent !important; }}
 [data-baseweb="tab"] p{{ font-weight:700 !important; color:var(--ink-soft) !important; }}
 [data-baseweb="tab"][aria-selected="true"]{{ background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important; box-shadow:0 6px 16px rgba(108,92,231,.4); }}
@@ -539,12 +552,12 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 [data-baseweb="tab-highlight"], [data-baseweb="tab-border"]{{ display:none !important; }}
 [data-testid="stTabs"]{{ display:block; }}
 
-/* ── buttons with water-ripple pulse ── */
+/* ── buttons with double-rim bevel & water-ripple pulse ── */
 .stApp [data-testid^="stBaseButton"]{{
   position:relative; overflow:hidden;
-  border-radius:16px; min-height:46px; font-weight:700; color:var(--ink) !important;
-  background:var(--glass-strong) !important; border:1px solid var(--edge) !important;
-  box-shadow:inset 0 1px 0 #fff,0 6px 14px rgba(84,72,170,.1);
+  border-radius:18px; min-height:48px; font-weight:700; color:var(--ink) !important;
+  background:var(--glass-strong) !important; border:1px solid rgba(255,255,255,.92) !important;
+  box-shadow:inset 0 1.5px 0 #fff, inset 0 -1.5px 0 rgba(108,92,231,.1), 0 6px 14px rgba(84,72,170,.1);
   transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s ease,background .18s ease;
 }}
 .stApp [data-testid^="stBaseButton"]::after{{
@@ -555,13 +568,13 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .stApp [data-testid^="stBaseButton"]:active::after{{
   transform:scale(2.2); opacity:1; transition:0s;
 }}
-.stApp [data-testid^="stBaseButton"] p{{ color:inherit !important; font-weight:700; }}
-.stApp [data-testid^="stBaseButton"]:hover{{ transform:translateY(-2px); background:rgba(255,255,255,.88) !important; box-shadow:inset 0 1px 0 #fff,0 10px 20px rgba(84,72,170,.18); }}
-.stApp [data-testid^="stBaseButton"]:active{{ transform:scale(.97); }}
+.stApp [data-testid^="stBaseButton"] p{{ color:inherit !important; font-weight:700; line-height:1.3; }}
+.stApp [data-testid^="stBaseButton"]:hover{{ transform:translateY(-2px); background:rgba(255,255,255,.9) !important; box-shadow:inset 0 1.5px 0 #fff,0 10px 22px rgba(84,72,170,.18); }}
+.stApp [data-testid^="stBaseButton"]:active{{ transform:scale(.97) translateY(1px); box-shadow:inset 0 2px 4px rgba(84,72,170,.16); }}
 .stApp [data-testid="stBaseButton-primary"]{{
-  color:#fff !important; border-color:rgba(255,255,255,.4) !important;
+  color:#fff !important; border-color:rgba(255,255,255,.45) !important;
   background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 22px rgba(108,92,231,.38);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.55),0 10px 22px rgba(108,92,231,.38);
 }}
 .stApp [data-testid="stBaseButton-primary"]:hover{{ filter:brightness(1.05); }}
 .stApp [data-testid="stBaseButton-primary"] p{{ color:#fff !important; }}
@@ -570,10 +583,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 /* ── inputs & pills ── */
 .stApp label, .stApp [data-testid="stWidgetLabel"] p{{ color:var(--ink) !important; font-weight:700 !important; }}
 [data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"]{{
-  background:rgba(255,255,255,.72) !important; border-radius:16px !important; border-color:var(--edge) !important;
+  background:rgba(255,255,255,.76) !important; border-radius:16px !important; border-color:rgba(255,255,255,.92) !important;
 }}
 [data-baseweb="select"] *, [data-baseweb="input"] input{{ color:var(--ink) !important; -webkit-text-fill-color:var(--ink) !important; }}
-[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{{ background:rgba(255,255,255,.94) !important; border-radius:16px !important; }}
+[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{{ background:rgba(255,255,255,.95) !important; border-radius:16px !important; }}
 [data-testid="stNumberInput"] button{{ min-height:0 !important; box-shadow:none !important; }}
 
 /* ── responsive: quick pours 2×2 on phones, 4×1 on wider screens ── */
@@ -595,7 +608,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 @media (max-height:520px) and (orientation:landscape){{
   .wb-ring{{ width:min(100%,200px); }} .wb-hero{{ padding:12px 16px; }} .wb-tag{{ display:none; }}
 }}
-@media (min-width:761px) and (max-width:1024px){{ .wb-pill{{ min-width:92px; }} }}
+@media (min-width:761px) and (max-width:1024px){{ .wb-pill{{ min-width:96px; }} }}
 
 @media (prefers-reduced-motion:reduce){{
   .stApp::before,.stApp::after,.wb-orb,.wb-w1,.wb-w2,.wb-drop-a,.wb-drop-b,.wb-rose-only-wrap,.wb-rose-3d,.wb-fall-star{{ animation:none !important; }}
@@ -938,6 +951,9 @@ def ring_svg(progress: float) -> str:
         "M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 "
         "T400 10 V220 H0 Z"
     )
+    meniscus = (
+        "M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 T400 10"
+    )
     droplet_path = "M0 -6.5 C4.2 -1.2 6.2 1.8 6.2 4.4 C6.2 7.8 3.4 10.2 0 10.2 C-3.4 10.2 -6.2 7.8 -6.2 4.4 C-6.2 1.8 -4.2 -1.2 0 -6.5 Z"
     return f"""
     <svg viewBox="0 0 200 200" role="img" aria-label="{int(progress*100)} percent of daily goal">
@@ -951,11 +967,12 @@ def ring_svg(progress: float) -> str:
         </linearGradient>
         <clipPath id="wbClip"><circle cx="100" cy="100" r="72"/></clipPath>
       </defs>
-      <circle cx="100" cy="100" r="72" fill="rgba(255,255,255,.52)"/>
+      <circle cx="100" cy="100" r="72" fill="rgba(255,255,255,.54)"/>
       <g clip-path="url(#wbClip)">
         <g class="wb-lvl" style="transform:translateY({level:.1f}px)">
           <path class="wb-w2" d="{wave}" fill="#b8aff9" fill-opacity=".55" transform="translate(-50 -4)"/>
           <path class="wb-w1" d="{wave}" fill="url(#wbWater)"/>
+          <path class="wb-w1" d="{meniscus}" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity=".72"/>
           <path class="wb-drop-a" d="{droplet_path}" transform="translate(66, 48)" fill="#ffffff" fill-opacity=".78"/>
           <path class="wb-drop-b" d="{droplet_path}" transform="translate(132, 54)" fill="#ffffff" fill-opacity=".72"/>
         </g>
