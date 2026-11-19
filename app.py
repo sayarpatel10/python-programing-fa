@@ -180,13 +180,13 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "bg": "linear-gradient(155deg,#fde2e4 0%,#e8eef5 48%,#dfe7fd 100%)",
             "orb1": "#ffafcc",
             "orb2": "#90e0ef",
-            "ink": "#281e45",
-            "ink_soft": "#655887",
+            "ink": "#241942",
+            "ink_soft": "#4e4173",
             "accent": "#7b2cbf",
             "accent2": "#e07a5f",
-            "glass": "rgba(255,255,255,.46)",
-            "glass_strong": "rgba(255,255,255,.72)",
-            "edge": "rgba(255,255,255,.86)",
+            "glass": "rgba(255,255,255,.48)",
+            "glass_strong": "rgba(255,255,255,.76)",
+            "edge": "rgba(255,255,255,.88)",
         }
     if mode == "Twilight Indigo":
         return {
@@ -194,26 +194,26 @@ def resolve_theme_tokens(mode: str, current_hour: int) -> dict:
             "bg": "linear-gradient(155deg,#cfd9f7 0%,#d8ccf7 50%,#bdd8f2 100%)",
             "orb1": "#7b6cf6",
             "orb2": "#38bdf8",
-            "ink": "#1c1947",
-            "ink_soft": "#4e4b82",
+            "ink": "#181540",
+            "ink_soft": "#3f3c73",
             "accent": "#5b46e8",
             "accent2": "#38a3d1",
-            "glass": "rgba(255,255,255,.44)",
-            "glass_strong": "rgba(255,255,255,.70)",
-            "edge": "rgba(255,255,255,.84)",
+            "glass": "rgba(255,255,255,.46)",
+            "glass_strong": "rgba(255,255,255,.74)",
+            "edge": "rgba(255,255,255,.86)",
         }
     return {
         "name": "Aqua Daylight",
         "bg": "linear-gradient(155deg,#c3e3f2 0%,#dcd5fa 52%,#c5dcf4 100%)",
         "orb1": "#9e90ff",
         "orb2": "#6ec4ea",
-        "ink": "#222052",
-        "ink_soft": "#5b5b8e",
+        "ink": "#1e1c4a",
+        "ink_soft": "#47477a",
         "accent": "#6c5ce7",
         "accent2": "#8d7ff5",
-        "glass": "rgba(255,255,255,.42)",
-        "glass_strong": "rgba(255,255,255,.68)",
-        "edge": "rgba(255,255,255,.82)",
+        "glass": "rgba(255,255,255,.45)",
+        "glass_strong": "rgba(255,255,255,.72)",
+        "edge": "rgba(255,255,255,.84)",
     }
 
 
@@ -308,10 +308,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .wb-glass, [data-testid="stVerticalBlockBorderWrapper"]{{
   --mx: 18%; --my: 0%;
   position:relative; overflow:hidden;
-  background:linear-gradient(140deg,rgba(255,255,255,.66),rgba(255,255,255,.30)) !important;
+  background:linear-gradient(140deg,rgba(255,255,255,.68),rgba(255,255,255,.34)) !important;
   -webkit-backdrop-filter:blur(28px) saturate(180%); backdrop-filter:blur(28px) saturate(180%);
   border:1px solid var(--edge) !important; border-radius:28px !important;
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.98), inset 0 -1.5px 0 rgba(255,255,255,.32), var(--shadow);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.98), inset 0 -1.5px 0 rgba(255,255,255,.35), var(--shadow);
   transition:transform .28s cubic-bezier(.16,1,.3,1), box-shadow .28s ease;
 }}
 .wb-glass::before, [data-testid="stVerticalBlockBorderWrapper"]::before{{
@@ -330,37 +330,37 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   background:linear-gradient(145deg,#ffffff,#e6e0fc);
   border:1.5px solid rgba(255,255,255,.95);
   box-shadow:inset 0 -3px 8px rgba(108,92,231,.18),0 10px 22px rgba(108,92,231,.24); }}
-.wb-hello{{ color:var(--ink-soft); font-size:.86rem; font-weight:600; letter-spacing:.02em; }}
+.wb-hello{{ color:var(--ink-soft); font-size:.86rem; font-weight:700; letter-spacing:.02em; }}
 .wb-brand{{
   font-family:'Fraunces',Georgia,serif !important;
   font-size:clamp(1.75rem,4.4vw,2.45rem); font-weight:800; letter-spacing:-.025em; line-height:1.08;
   color:var(--ink); margin-top:2px;
 }}
-.wb-tag{{ color:var(--ink-soft); font-size:.92rem; margin-top:5px; font-weight:500; letter-spacing:.005em; }}
+.wb-tag{{ color:var(--ink-soft); font-size:.92rem; margin-top:5px; font-weight:600; letter-spacing:.005em; }}
 .wb-pills{{ margin-left:auto; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }}
 .wb-pill{{
   padding:12px 18px; border-radius:22px; background:var(--glass-strong);
-  border:1px solid rgba(255,255,255,.92);
-  text-align:center; min-width:132px;
+  border:1px solid rgba(255,255,255,.95);
+  text-align:center; min-width:136px;
   box-shadow:inset 0 1.5px 0 #fff, inset 0 -1px 0 rgba(108,92,231,.08), 0 8px 18px rgba(78,66,164,.08);
 }}
-.wb-pill b{{ display:block; font-size:1.06rem; font-weight:800; letter-spacing:-.015em; line-height:1.2; }}
-.wb-pill span{{ display:block; font-size:.8rem; font-weight:800; color:var(--accent); margin-top:3px; }}
-.wb-pill small{{ display:block; color:var(--ink-soft); font-size:.69rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-top:5px; }}
+.wb-pill b{{ display:block; font-size:1.08rem; font-weight:800; letter-spacing:-.015em; line-height:1.2; color:var(--ink); }}
+.wb-pill span{{ display:block; font-size:.82rem; font-weight:800; color:var(--accent); margin-top:4px; }}
+.wb-pill small{{ display:block; color:var(--ink-soft); font-size:.69rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; margin-top:6px; }}
 
 /* ── section titles ── */
 .wb-h{{
   font-family:'Fraunces',Georgia,serif !important;
-  font-size:1.22rem; font-weight:700; letter-spacing:-.015em; margin:.1rem 0 .2rem;
+  font-size:1.24rem; font-weight:700; letter-spacing:-.015em; margin:.1rem 0 .25rem; color:var(--ink);
 }}
-.wb-sub{{ color:var(--ink-soft); font-size:.9rem; line-height:1.45; margin-bottom:.85rem; }}
+.wb-sub{{ color:var(--ink-soft); font-size:.9rem; line-height:1.48; margin-bottom:.9rem; font-weight:500; }}
 
 /* ── progress ring with liquid wave, meniscus highlight & two water droplets ── */
-.wb-ring{{ position:relative; width:min(100%,292px); margin:.45rem auto .75rem; aspect-ratio:1; }}
+.wb-ring{{ position:relative; width:min(100%,292px); margin:.5rem auto .8rem; aspect-ratio:1; }}
 .wb-ring svg{{ width:100%; height:100%; display:block; overflow:visible; }}
-.wb-track{{ fill:none; stroke:rgba(255,255,255,.78); stroke-width:12; }}
+.wb-track{{ fill:none; stroke:rgba(255,255,255,.84); stroke-width:12; }}
 .wb-arc{{ fill:none; stroke:url(#wbArc); stroke-width:12; stroke-linecap:round;
-  transition:stroke-dasharray .9s cubic-bezier(.16,1,.3,1); filter:drop-shadow(0 4px 8px rgba(108,92,231,.32)); }}
+  transition:stroke-dasharray .9s cubic-bezier(.16,1,.3,1); filter:drop-shadow(0 4px 10px rgba(108,92,231,.35)); }}
 .wb-lvl{{ transition:transform 1s cubic-bezier(.16,1,.3,1); }}
 .wb-w1{{ animation:slide 7s linear infinite; }}
 .wb-w2{{ animation:slide 11s linear infinite reverse; }}
@@ -370,41 +370,41 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .wb-drop-b{{ animation:dropletFloatB 4.4s ease-in-out 1.2s infinite; transform-box:fill-box; transform-origin:center; }}
 @keyframes dropletFloatA{{
   0%{{ opacity:0; transform:translateY(12px) scale(.85); }}
-  25%{{ opacity:.92; }}
-  80%{{ opacity:.75; }}
+  25%{{ opacity:.94; }}
+  80%{{ opacity:.78; }}
   100%{{ opacity:0; transform:translateY(-36px) scale(1.05); }}
 }}
 @keyframes dropletFloatB{{
   0%{{ opacity:0; transform:translateY(16px) scale(.82); }}
-  28%{{ opacity:.88; }}
-  80%{{ opacity:.72; }}
+  28%{{ opacity:.9; }}
+  80%{{ opacity:.74; }}
   100%{{ opacity:0; transform:translateY(-32px) scale(1.04); }}
 }}
 
 .wb-ring-text{{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; pointer-events:none; padding:0 18px; }}
-.wb-big{{ font-size:clamp(1.75rem,5.5vw,2.35rem); font-weight:800; letter-spacing:-.03em; line-height:1.05; }}
-.wb-big small{{ font-size:.48em; font-weight:700; color:var(--ink-soft); margin-left:3px; }}
+.wb-big{{ font-size:clamp(1.8rem,5.5vw,2.4rem); font-weight:800; letter-spacing:-.03em; line-height:1.05; color:var(--ink); }}
+.wb-big small{{ font-size:.46em; font-weight:800; color:var(--ink-soft); margin-left:4px; }}
 .wb-liters{{
-  display:inline-block; font-size:.9rem; font-weight:800; color:var(--accent);
-  background:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.95);
-  padding:3px 12px; border-radius:999px; margin-top:7px; letter-spacing:.01em;
-  box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(78,66,164,.08);
+  display:inline-block; font-size:.92rem; font-weight:800; color:var(--accent);
+  background:rgba(255,255,255,.86); border:1px solid rgba(255,255,255,.98);
+  padding:3px 13px; border-radius:999px; margin-top:8px; letter-spacing:.015em;
+  box-shadow:inset 0 1px 0 #fff, 0 4px 10px rgba(78,66,164,.1);
 }}
-.wb-of{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:8px; line-height:1.35; }}
+.wb-of{{ color:var(--ink-soft); font-size:.8rem; font-weight:700; margin-top:9px; line-height:1.4; }}
 
 .wb-left{{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
   padding:15px 18px; border-radius:20px; margin-top:4px;
-  background:var(--glass-strong); border:1px solid rgba(255,255,255,.92);
+  background:var(--glass-strong); border:1px solid rgba(255,255,255,.95);
   box-shadow:inset 0 1.5px 0 #fff, inset 0 -1px 0 rgba(108,92,231,.08); text-align:center;
 }}
-.wb-left b{{ color:var(--accent); font-size:1.12rem; font-weight:800; letter-spacing:-.015em; }}
+.wb-left b{{ color:var(--accent); font-size:1.14rem; font-weight:800; letter-spacing:-.01em; }}
 .wb-left span{{ color:var(--ink-soft); font-size:.86rem; font-weight:600; }}
 
 .wb-meta-row{{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }}
 .wb-chip{{
-  font-size:.8rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.72);
-  border:1px solid rgba(255,255,255,.92); padding:10px 14px; border-radius:16px; text-align:center;
+  font-size:.82rem; font-weight:700; color:var(--ink); background:rgba(255,255,255,.78);
+  border:1px solid rgba(255,255,255,.95); padding:10px 14px; border-radius:16px; text-align:center;
   box-shadow:inset 0 1.5px 0 #fff, 0 4px 10px rgba(78,66,164,.06);
 }}
 
@@ -412,27 +412,27 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
   display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px;
 }}
 .wb-ms-badge{{
-  text-align:center; padding:8px 6px; border-radius:14px; font-size:.78rem; font-weight:800;
-  background:rgba(255,255,255,.42); border:1px solid rgba(255,255,255,.72); color:var(--ink-soft);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+  text-align:center; padding:8px 6px; border-radius:14px; font-size:.8rem; font-weight:800;
+  background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.82); color:var(--ink-soft);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
 }}
 .wb-ms-badge.is-done{{
-  background:linear-gradient(135deg,rgba(108,92,231,.24),rgba(111,195,232,.30));
+  background:linear-gradient(135deg,rgba(108,92,231,.24),rgba(111,195,232,.32));
   border-color:rgba(255,255,255,.98); color:var(--ink);
-  box-shadow:inset 0 1.5px 0 #fff, 0 4px 10px rgba(108,92,231,.12);
+  box-shadow:inset 0 1.5px 0 #fff, 0 4px 10px rgba(108,92,231,.14);
 }}
 
 .wb-pace-wrap{{
   margin-top:12px; padding:12px 15px; border-radius:18px;
-  background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.88);
+  background:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.92);
   box-shadow:inset 0 1px 0 #fff;
 }}
 .wb-pace-head{{
-  display:flex; justify-content:space-between; font-size:.78rem; font-weight:700; color:var(--ink-soft);
+  display:flex; justify-content:space-between; font-size:.8rem; font-weight:700; color:var(--ink-soft);
   margin-bottom:7px;
 }}
 .wb-pace-track{{
-  width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,.75); overflow:hidden;
+  width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,.82); overflow:hidden;
   box-shadow:inset 0 1px 2px rgba(78,66,164,.12);
 }}
 .wb-pace-fill{{
@@ -442,9 +442,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 }}
 
 .wb-msg{{
-  margin-top:12px; padding:14px 18px; border-radius:20px; font-weight:700; font-size:.92rem; line-height:1.48;
-  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(111,195,232,.2));
-  border:1px solid rgba(255,255,255,.88); box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+  margin-top:12px; padding:14px 18px; border-radius:20px; font-weight:700; font-size:.92rem; line-height:1.5;
+  color:var(--ink);
+  background:linear-gradient(135deg,rgba(108,92,231,.17),rgba(111,195,232,.22));
+  border:1px solid rgba(255,255,255,.92); box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
 }}
 
 /* ── boxless single big 3D red rose in center (no text, fades smoothly after 5s) ── */
@@ -525,28 +526,28 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 
 /* ── records ── */
 .wb-rec{{ display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:18px;
-  background:var(--glass-strong); border:1px solid rgba(255,255,255,.92);
+  background:var(--glass-strong); border:1px solid rgba(255,255,255,.95);
   box-shadow:inset 0 1.5px 0 #fff, 0 4px 12px rgba(78,66,164,.06); }}
 .wb-rec-ic{{ width:40px; height:40px; border-radius:14px; display:grid; place-items:center; font-size:1.12rem;
-  background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; border:1px solid rgba(255,255,255,.9); }}
-.wb-rec-t{{ font-weight:700; font-size:.96rem; letter-spacing:-.01em; }}
+  background:linear-gradient(145deg,#e7e2fd,#cfe7f6); flex:0 0 auto; border:1px solid rgba(255,255,255,.92); }}
+.wb-rec-t{{ font-weight:700; font-size:.96rem; letter-spacing:-.01em; color:var(--ink); }}
 .wb-rec-s{{ color:var(--ink-soft); font-size:.78rem; font-weight:700; margin-top:2px; }}
-.wb-rec-ml{{ margin-left:auto; font-weight:800; font-size:.98rem; white-space:nowrap; text-align:right; }}
-.wb-rec-ml small{{ display:block; font-size:.74rem; font-weight:700; color:var(--accent); margin-top:2px; }}
+.wb-rec-ml{{ margin-left:auto; font-weight:800; font-size:.98rem; white-space:nowrap; text-align:right; color:var(--ink); }}
+.wb-rec-ml small{{ display:block; font-size:.76rem; font-weight:800; color:var(--accent); margin-top:2px; }}
 .wb-empty{{ text-align:center; color:var(--ink-soft); padding:1.5rem .6rem; font-weight:600; font-size:.92rem; }}
 .wb-stat{{ text-align:center; padding:14px 10px; border-radius:20px; background:var(--glass-strong);
-  border:1px solid rgba(255,255,255,.92); box-shadow:inset 0 1.5px 0 #fff, 0 6px 14px rgba(78,66,164,.06); }}
-.wb-stat b{{ display:block; font-size:1.18rem; font-weight:800; letter-spacing:-.015em; }}
-.wb-stat span{{ display:block; font-size:.82rem; font-weight:800; color:var(--accent); margin-top:3px; }}
-.wb-stat small{{ display:block; color:var(--ink-soft); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; margin-top:4px; }}
+  border:1px solid rgba(255,255,255,.95); box-shadow:inset 0 1.5px 0 #fff, 0 6px 14px rgba(78,66,164,.06); }}
+.wb-stat b{{ display:block; font-size:1.18rem; font-weight:800; letter-spacing:-.015em; color:var(--ink); }}
+.wb-stat span{{ display:block; font-size:.82rem; font-weight:800; color:var(--accent); margin-top:4px; }}
+.wb-stat small{{ display:block; color:var(--ink-soft); font-weight:800; font-size:.71rem; text-transform:uppercase; letter-spacing:.03em; margin-top:5px; }}
 .wb-stats{{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }}
 
-/* ── tabs as floating glass pill ── */
-[data-baseweb="tab-list"]{{ gap:4px !important; padding:5px; width:fit-content; max-width:100%; margin:0 auto 1.15rem;
-  border-radius:22px; background:var(--glass); border:1px solid rgba(255,255,255,.9);
+/* ── tabs as floating glass pill with clear contrast ── */
+[data-baseweb="tab-list"]{{ gap:5px !important; padding:5px; width:fit-content; max-width:100%; margin:0 auto 1.15rem;
+  border-radius:22px; background:rgba(255,255,255,.62); border:1px solid rgba(255,255,255,.95);
   -webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px); box-shadow:inset 0 1.5px 0 #fff,var(--shadow); }}
 [data-baseweb="tab"]{{ border-radius:17px !important; padding:9px 22px !important; height:auto !important; background:transparent !important; }}
-[data-baseweb="tab"] p{{ font-weight:700 !important; color:var(--ink-soft) !important; }}
+[data-baseweb="tab"] p{{ font-weight:800 !important; color:var(--ink-soft) !important; }}
 [data-baseweb="tab"][aria-selected="true"]{{ background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important; box-shadow:0 6px 16px rgba(108,92,231,.4); }}
 [data-baseweb="tab"][aria-selected="true"] p{{ color:#fff !important; }}
 [data-baseweb="tab-highlight"], [data-baseweb="tab-border"]{{ display:none !important; }}
@@ -555,8 +556,8 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 /* ── buttons with double-rim bevel & water-ripple pulse ── */
 .stApp [data-testid^="stBaseButton"]{{
   position:relative; overflow:hidden;
-  border-radius:18px; min-height:48px; font-weight:700; color:var(--ink) !important;
-  background:var(--glass-strong) !important; border:1px solid rgba(255,255,255,.92) !important;
+  border-radius:18px; min-height:54px; font-weight:700; color:var(--ink) !important;
+  background:var(--glass-strong) !important; border:1px solid rgba(255,255,255,.95) !important;
   box-shadow:inset 0 1.5px 0 #fff, inset 0 -1.5px 0 rgba(108,92,231,.1), 0 6px 14px rgba(84,72,170,.1);
   transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s ease,background .18s ease;
 }}
@@ -568,8 +569,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 .stApp [data-testid^="stBaseButton"]:active::after{{
   transform:scale(2.2); opacity:1; transition:0s;
 }}
-.stApp [data-testid^="stBaseButton"] p{{ color:inherit !important; font-weight:700; line-height:1.3; }}
-.stApp [data-testid^="stBaseButton"]:hover{{ transform:translateY(-2px); background:rgba(255,255,255,.9) !important; box-shadow:inset 0 1.5px 0 #fff,0 10px 22px rgba(84,72,170,.18); }}
+.stApp [data-testid^="stBaseButton"] p{{
+  color:inherit !important; font-weight:800; line-height:1.35; white-space:pre-line !important;
+}}
+.stApp [data-testid^="stBaseButton"]:hover{{ transform:translateY(-2px); background:rgba(255,255,255,.92) !important; box-shadow:inset 0 1.5px 0 #fff,0 10px 22px rgba(84,72,170,.18); }}
 .stApp [data-testid^="stBaseButton"]:active{{ transform:scale(.97) translateY(1px); box-shadow:inset 0 2px 4px rgba(84,72,170,.16); }}
 .stApp [data-testid="stBaseButton-primary"]{{
   color:#fff !important; border-color:rgba(255,255,255,.45) !important;
@@ -583,10 +586,10 @@ html, body, .stApp, [data-testid="stAppViewContainer"]{{
 /* ── inputs & pills ── */
 .stApp label, .stApp [data-testid="stWidgetLabel"] p{{ color:var(--ink) !important; font-weight:700 !important; }}
 [data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"]{{
-  background:rgba(255,255,255,.76) !important; border-radius:16px !important; border-color:rgba(255,255,255,.92) !important;
+  background:rgba(255,255,255,.8) !important; border-radius:16px !important; border-color:rgba(255,255,255,.95) !important;
 }}
 [data-baseweb="select"] *, [data-baseweb="input"] input{{ color:var(--ink) !important; -webkit-text-fill-color:var(--ink) !important; }}
-[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{{ background:rgba(255,255,255,.95) !important; border-radius:16px !important; }}
+[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{{ background:rgba(255,255,255,.96) !important; border-radius:16px !important; }}
 [data-testid="stNumberInput"] button{{ min-height:0 !important; box-shadow:none !important; }}
 
 /* ── responsive: quick pours 2×2 on phones, 4×1 on wider screens ── */
@@ -959,24 +962,25 @@ def ring_svg(progress: float) -> str:
     <svg viewBox="0 0 200 200" role="img" aria-label="{int(progress*100)} percent of daily goal">
       <defs>
         <linearGradient id="wbArc" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="{T['accent']}"/><stop offset="1" stop-color="#5bb8e6"/>
+          <stop offset="0" stop-color="{T['accent']}"/><stop offset="1" stop-color="#4ea8de"/>
         </linearGradient>
         <linearGradient id="wbWater" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#9d92f7" stop-opacity=".86"/>
-          <stop offset="1" stop-color="#6ec1ea" stop-opacity=".76"/>
+          <stop offset="0" stop-color="#8b7ef5" stop-opacity=".88"/>
+          <stop offset="1" stop-color="#56b4e9" stop-opacity=".8"/>
         </linearGradient>
         <clipPath id="wbClip"><circle cx="100" cy="100" r="72"/></clipPath>
       </defs>
-      <circle cx="100" cy="100" r="72" fill="rgba(255,255,255,.54)"/>
+      <circle cx="100" cy="100" r="72" fill="rgba(255,255,255,.58)"/>
       <g clip-path="url(#wbClip)">
         <g class="wb-lvl" style="transform:translateY({level:.1f}px)">
-          <path class="wb-w2" d="{wave}" fill="#b8aff9" fill-opacity=".55" transform="translate(-50 -4)"/>
+          <path class="wb-w2" d="{wave}" fill="#a79bf7" fill-opacity=".58" transform="translate(-50 -4)"/>
           <path class="wb-w1" d="{wave}" fill="url(#wbWater)"/>
-          <path class="wb-w1" d="{meniscus}" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity=".72"/>
-          <path class="wb-drop-a" d="{droplet_path}" transform="translate(66, 48)" fill="#ffffff" fill-opacity=".78"/>
-          <path class="wb-drop-b" d="{droplet_path}" transform="translate(132, 54)" fill="#ffffff" fill-opacity=".72"/>
+          <path class="wb-w1" d="{meniscus}" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-opacity=".82"/>
+          <path class="wb-drop-a" d="{droplet_path}" transform="translate(66, 48)" fill="#ffffff" fill-opacity=".84"/>
+          <path class="wb-drop-b" d="{droplet_path}" transform="translate(132, 54)" fill="#ffffff" fill-opacity=".78"/>
         </g>
       </g>
+      <path d="M 38 72 A 70 70 0 0 1 146 42" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="3" stroke-linecap="round"/>
       <circle class="wb-track" cx="100" cy="100" r="{RING_R}"/>
       <circle class="wb-arc" cx="100" cy="100" r="{RING_R}" transform="rotate(-90 100 100)"
               stroke-dasharray="{dash:.1f} {RING_C:.1f}"/>
@@ -1063,7 +1067,7 @@ with tab_home:
                   <div class="wb-ring-text">
                     <div class="wb-big">{total:,}<small>ml</small></div>
                     <div class="wb-liters">{fmt_liters(total)}</div>
-                    <div class="wb-of">{int(round(percent))}% of {goal:,} ml ({fmt_liters(goal)})</div>
+                    <div class="wb-of">{int(round(percent))}% of {goal:,} ml · {fmt_liters(goal)}</div>
                   </div>
                 </div>
                 <div class="wb-left">
@@ -1072,7 +1076,7 @@ with tab_home:
                 </div>
                 <div class="wb-meta-row">
                   <span class="wb-chip">🥤 {glasses_label} glasses today</span>
-                  <span class="wb-chip">🫙 Bottle · {bottle_ml:,} ml ({fmt_liters(bottle_ml)})</span>
+                  <span class="wb-chip">🫙 Bottle · {bottle_ml:,} ml · {fmt_liters(bottle_ml)}</span>
                 </div>
                 <div class="wb-milestones-strip">{ms_badges_html}</div>
                 <div class="wb-pace-wrap">
@@ -1115,7 +1119,7 @@ with tab_home:
                     )
             b_col1, b_col2 = st.columns(2)
             b_col1.button(
-                f"🫙 +Bottle · {bottle_ml:,} ml ({fmt_liters(bottle_ml)})",
+                f"🫙 +Bottle · {bottle_ml:,} ml · {fmt_liters(bottle_ml)}",
                 key="add_bottle_btn",
                 use_container_width=True,
                 on_click=add_water,
@@ -1181,7 +1185,7 @@ with tab_records:
     if st.session_state.show_reset_confirm:
         with st.container(border=True):
             html('<div class="wb-h">Start a new day?</div>')
-            html('<div class="wb-sub">This clears today’s drinks and sets your total back to 0 ml (0 L).</div>')
+            html('<div class="wb-sub">This clears today’s drinks and sets your total back to 0 ml · 0 L.</div>')
             c1, c2 = st.columns(2)
             c1.button("Yes, reset", type="primary", use_container_width=True, on_click=reset_new_day)
             c2.button("Cancel", use_container_width=True, on_click=cancel_new_day)
@@ -1193,8 +1197,8 @@ with tab_settings:
     with st.container(border=True):
         html('<div class="wb-h">Target & Atmosphere</div>')
         html(
-            f'<div class="wb-sub">Current goal: <b>{goal:,} ml ({fmt_liters(goal)})</b> · '
-            f'Bottle preset: <b>{bottle_ml:,} ml ({fmt_liters(bottle_ml)})</b>.</div>'
+            f'<div class="wb-sub">Current goal: <b>{goal:,} ml · {fmt_liters(goal)}</b> · '
+            f'Bottle preset: <b>{bottle_ml:,} ml · {fmt_liters(bottle_ml)}</b>.</div>'
         )
         s1, s2 = st.columns(2, gap="medium")
         s1.selectbox("Age group", list(AGE_GOALS), key="age_group", on_change=set_goal_from_age)
